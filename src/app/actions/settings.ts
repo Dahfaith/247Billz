@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
@@ -226,4 +227,21 @@ export async function updatePersonalProfile(formData: FormData) {
 
   revalidatePath('/dashboard/settings')
   return { success: true }
+}
+
+export async function getPublicPlatformSettings() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    return null
+  }
+
+  const supabaseAdmin = createSupabaseClient(url, key)
+  const { data } = await supabaseAdmin
+    .from('platform_settings')
+    .select('enable_invoicing, enable_estimates, enable_receipts, enable_subscriptions, enable_tax_computation, enable_multi_currency, enable_multi_language, require_2fa, strict_kyc_mode')
+    .single()
+
+  return data
 }

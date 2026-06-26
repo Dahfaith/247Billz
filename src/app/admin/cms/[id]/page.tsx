@@ -7,12 +7,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 
-export default async function AdminCMSEditorPage({ params }: { params: { id: string } }) {
-  const isNew = params.id === 'new'
+export default async function AdminCMSEditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
+  const isNew = id === 'new';
   
   let page: any = null
   if (!isNew) {
-    const res = await getCMSPageById(params.id)
+    const res = await getCMSPageById(id)
     if (!res.success || !res.page) notFound()
     page = res.page
   }
@@ -22,7 +24,7 @@ export default async function AdminCMSEditorPage({ params }: { params: { id: str
     if (isNew) {
       await createCMSPage(formData)
     } else {
-      await updateCMSPage(params.id, formData)
+      await updateCMSPage(id, formData)
     }
     redirect('/admin/cms')
   }

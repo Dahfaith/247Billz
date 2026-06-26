@@ -13,18 +13,24 @@ import { createSupportTicket } from '@/app/actions/support'
 export function SupportForm() {
   const [isPending, startTransition] = useTransition()
   const [success, setSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setErrorMsg('')
     const formData = new FormData(e.currentTarget)
     
     startTransition(async () => {
       try {
-        await createSupportTicket(formData)
+        const res = await createSupportTicket(formData)
+        if (res?.error) {
+          setErrorMsg(res.error)
+          return
+        }
         setSuccess(true)
         setTimeout(() => setSuccess(false), 5000)
-      } catch (err) {
-        alert("Failed to submit ticket")
+      } catch (err: any) {
+        setErrorMsg(err.message || "Failed to submit ticket")
       }
     })
   }
@@ -62,7 +68,12 @@ export function SupportForm() {
             <Textarea id="message" name="message" required placeholder="Please describe your issue in detail..." className="bg-white border-[#E2E8F0] min-h-[120px]" />
           </div>
         </CardContent>
-        <CardFooter className="bg-[#F8FAFC] border-t border-[#E2E8F0]">
+        <CardFooter className="bg-[#F8FAFC] border-t border-[#E2E8F0] flex flex-col gap-3">
+          {errorMsg && (
+            <div className="w-full text-center text-red-500 font-medium text-sm py-1">
+              {errorMsg}
+            </div>
+          )}
           {success ? (
             <div className="w-full text-center text-[#10B981] font-medium flex items-center justify-center gap-2 py-2">
               <CheckCircle2 className="w-5 h-5" /> Ticket Submitted Successfully!

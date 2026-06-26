@@ -10,11 +10,12 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const revalidate = 60 // Cache the page for 60 seconds
 
-export default async function PublicCMSPage({ params }: { params: { slug: string } }) {
+export default async function PublicCMSPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
   const { data: page, error } = await supabase
     .from('cms_pages')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', resolvedParams.slug)
     .eq('status', 'published')
     .single()
 

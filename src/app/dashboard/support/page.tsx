@@ -45,12 +45,13 @@ export default async function SupportPage() {
                     <TableHead className="font-semibold text-[#64748B]">Subject</TableHead>
                     <TableHead className="font-semibold text-[#64748B]">Status</TableHead>
                     <TableHead className="font-semibold text-[#64748B] text-right">Date</TableHead>
+                    <TableHead className="font-semibold text-[#64748B] text-right"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tickets.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-[#94A3B8]">
+                      <TableCell colSpan={5} className="text-center py-8 text-[#94A3B8]">
                         You haven't opened any support tickets yet.
                       </TableCell>
                     </TableRow>
@@ -77,6 +78,11 @@ export default async function SupportPage() {
                       </TableCell>
                       <TableCell className="text-right text-sm text-[#64748B]">
                         {new Date(ticket.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <a href={`/dashboard/support/${ticket.ticket_number}`} className="text-sm font-medium text-primary hover:underline">
+                          View
+                        </a>
                       </TableCell>
                     </TableRow>
                   ))}

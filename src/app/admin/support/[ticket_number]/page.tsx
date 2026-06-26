@@ -6,8 +6,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
 
-export default async function AdminTicketReplyPage({ params }: { params: { ticket_number: string } }) {
-  const { ticket, success } = await getAdminTicketByNumber(params.ticket_number)
+export default async function AdminTicketReplyPage({ params }: { params: Promise<{ ticket_number: string }> }) {
+  const resolvedParams = await params;
+  const { ticket, success } = await getAdminTicketByNumber(resolvedParams.ticket_number)
 
   if (!success || !ticket) {
     notFound()

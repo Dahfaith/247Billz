@@ -8,6 +8,8 @@ import { logout } from "@/app/actions/auth";
 import { MobileHeader } from "@/components/mobile-header";
 import { UpgradeModal } from "@/components/upgrade-modal";
 import { Suspense } from "react";
+import { getPublicPlatformSettings } from "@/app/actions/settings";
+import { HelpCircle, BookOpen } from "lucide-react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -72,6 +74,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   
   const percent = maxLimit === Infinity ? 100 : Math.min((usage / maxLimit) * 100, 100);
 
+  const platformSettings = await getPublicPlatformSettings();
+  const { data: cmsPages } = await supabase
+    .from('cms_pages')
+    .select('title, slug')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-muted/20">
@@ -88,12 +97,27 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard"><LayoutDashboard /> <span>Dashboard</span></Link></SidebarMenuButton></SidebarMenuItem>
-                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/invoices"><FileText /> <span>Invoices</span></Link></SidebarMenuButton></SidebarMenuItem>
-                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/quotations"><FileText /> <span>Quotations</span></Link></SidebarMenuButton></SidebarMenuItem>
-                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/receipts"><Receipt /> <span>Receipts</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  {platformSettings?.enable_invoicing !== false && (
+                    <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/invoices"><FileText /> <span>Invoices</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  )}
+                  {platformSettings?.enable_estimates !== false && (
+                    <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/quotations"><FileText /> <span>Quotations</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  )}
+                  {platformSettings?.enable_receipts !== false && (
+                    <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/receipts"><Receipt /> <span>Receipts</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  )}
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/clients"><Users /> <span>Clients</span></Link></SidebarMenuButton></SidebarMenuItem>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/payments"><CreditCard /> <span>Payments</span></Link></SidebarMenuButton></SidebarMenuItem>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/reports"><BarChart /> <span>Reports</span></Link></SidebarMenuButton></SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            
+            <SidebarGroup>
+              <SidebarGroupLabel>Help & Resources</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/support"><HelpCircle /> <span>Support Helpdesk</span></Link></SidebarMenuButton></SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -103,7 +127,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/settings"><Settings /> <span>Settings</span></Link></SidebarMenuButton></SidebarMenuItem>
-                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/billing"><CreditCard /> <span>Billing & Plans</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  {platformSettings?.enable_subscriptions !== false && (
+                    <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/billing"><CreditCard /> <span>Billing & Plans</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  )}
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/affiliate"><Gift /> <span>Affiliate Program</span></Link></SidebarMenuButton></SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>

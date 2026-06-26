@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +44,16 @@ const faqs = [
 
 export default function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [cmsPages, setCmsPages] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchPages = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('cms_pages').select('title, slug').eq('status', 'published');
+      if (data) setCmsPages(data);
+    };
+    fetchPages();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
@@ -352,9 +363,16 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
+                {cmsPages.map((page) => (
+                  <li key={page.slug}><Link href={`/${page.slug}`} className="hover:text-primary transition-colors">{page.title}</Link></li>
+                ))}
+                {cmsPages.length === 0 && (
+                  <>
+                    <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+                    <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+                    <li><Link href="#" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
+                  </>
+                )}
               </ul>
             </div>
           </div>
