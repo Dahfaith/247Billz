@@ -14,7 +14,7 @@ export default async function NewInvoicePage() {
     .select('*')
     .eq('owner_id', user?.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   const platformSettings = await getPublicPlatformSettings();
 

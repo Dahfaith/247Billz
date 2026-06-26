@@ -21,7 +21,7 @@ export default async function InvoicesPage() {
     .select('id')
     .eq('owner_id', user.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   let invoices = [];
   
@@ -80,6 +80,7 @@ export default async function InvoicesPage() {
                   <th className="px-6 py-4 font-medium">Invoice Number</th>
                   <th className="px-6 py-4 font-medium">Client</th>
                   <th className="px-6 py-4 font-medium">Issue Date</th>
+                  <th className="px-6 py-4 font-medium">Due Date</th>
                   <th className="px-6 py-4 font-medium">Amount</th>
                   <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -97,21 +98,36 @@ export default async function InvoicesPage() {
                         <div className="text-xs text-muted-foreground">{invoice.client?.email}</div>
                       </td>
                       <td className="px-6 py-4 text-slate-500">{invoice.issue_date}</td>
+                      <td className="px-6 py-4 text-slate-500">{invoice.due_date || '-'}</td>
                       <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(total, invoice.currency)}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${invoice.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                           {invoice.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
-                          <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">
-                            <Link href={`/invoice/${invoice.secure_token}`} target="_blank">
-                              View
-                            </Link>
-                          </Button>
-                        </div>
+                      <td className="px-6 py-4 text-right flex justify-end gap-2 items-center">
+                        <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
+                        
+                        {invoice.status !== 'paid' && (
+                          <form action={async () => {
+                            "use server";
+                            const { createClient } = await import("@/lib/supabase/server");
+                            const { revalidatePath } = await import("next/cache");
+                            const supabase = await createClient();
+                            await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoice.id);
+                            revalidatePath('/dashboard/invoices');
+                          }}>
+                            <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8">
+                              Mark Paid
+                            </Button>
+                          </form>
+                        )}
+                        
+                        <Button asChild variant="ghost" size="sm" className="h-8 text-primary hover:text-primary/90 hover:bg-primary/10">
+                          <Link href={`/invoice/${invoice.secure_token}`} target="_blank">
+                            View
+                          </Link>
+                        </Button>
                       </td>
                     </tr>
                   )
@@ -133,15 +149,34 @@ export default async function InvoicesPage() {
                         </div>
                         <div className="text-right">
                            <div className="font-bold text-slate-900">{formatCurrency(total, invoice.currency)}</div>
-                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mt-1 ${invoice.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mt-1 ${invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                              {invoice.status}
                            </span>
                         </div>
                      </div>
                      <div className="flex justify-between items-center pt-2 border-t border-border/50">
-                        <div className="text-xs text-slate-500">Issued: {invoice.issue_date}</div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-xs text-slate-500">Issued: {invoice.issue_date}</span>
+                          <span className="text-xs text-slate-500">Due: {invoice.due_date || '-'}</span>
+                        </div>
+                        <div className="flex gap-2 items-center">
                           <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
+                          
+                          {invoice.status !== 'paid' && (
+                            <form action={async () => {
+                              "use server";
+                              const { createClient } = await import("@/lib/supabase/server");
+                              const { revalidatePath } = await import("next/cache");
+                              const supabase = await createClient();
+                              await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoice.id);
+                              revalidatePath('/dashboard/invoices');
+                            }}>
+                              <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-2 text-xs">
+                                Paid
+                              </Button>
+                            </form>
+                          )}
+                          
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
                              <Link href={`/invoice/${invoice.secure_token}`} target="_blank">View</Link>
                           </Button>

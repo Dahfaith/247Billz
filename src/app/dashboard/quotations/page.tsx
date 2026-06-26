@@ -16,7 +16,7 @@ export default async function QuotationsPage() {
     .select('id')
     .eq('owner_id', user.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   let quotations = [];
   

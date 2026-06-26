@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { KeyRound, Shield, EyeOff, Save, CheckCircle2 } from 'lucide-react'
+import { SubmitButton } from '@/components/submit-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,9 +63,7 @@ export default async function AdminApiProvidersPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-[#E2E8F0] dark:border-slate-800">
-                  <Button type="submit" className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200">
-                    <Save className="w-4 h-4 mr-2" /> Save Configuration
-                  </Button>
+                  <SubmitButton className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200" />
                 </CardFooter>
               </form>
             </Card>

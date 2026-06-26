@@ -292,8 +292,8 @@ export async function getAdminSubscriptions() {
 export async function getAdminSettings() {
   const supabase = getAdminClient()
   try {
-    const { data, error } = await supabase.from('platform_settings').select('*').single()
-    if (error && error.code !== 'PGRST116') throw error
+    const { data, error } = await supabase.from('platform_settings').select('*').limit(1).maybeSingle()
+    if (error) throw error
     return { success: true, settings: data }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -323,7 +323,7 @@ export async function updateAdminSettings(formData: FormData) {
     }
     
     // Explicitly handle fields that might be empty/null to update them
-    const { data: existing } = await supabase.from('platform_settings').select('id').single()
+    const { data: existing, error: existError } = await supabase.from('platform_settings').select('id').limit(1).maybeSingle()
     
     let error;
     if (existing) {

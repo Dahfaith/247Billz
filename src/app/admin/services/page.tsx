@@ -4,6 +4,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Server, Settings2, ShieldCheck, Languages, Receipt, Calculator, Save } from 'lucide-react'
+import { SubmitButton } from '@/components/submit-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -140,9 +141,7 @@ export default async function AdminServicesPage() {
               </div>
             </CardContent>
             <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-[#E2E8F0] dark:border-slate-800 flex justify-end">
-              <Button type="submit" size="lg" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200">
-                <Save className="w-4 h-4 mr-2" /> Save Configuration
-              </Button>
+              <SubmitButton />
             </CardFooter>
           </Card>
         </div>
