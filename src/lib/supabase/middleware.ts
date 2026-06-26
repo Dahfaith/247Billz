@@ -66,6 +66,21 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Admin route protection
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    
+    if (!process.env.SUPER_ADMIN_EMAIL || user.email !== process.env.SUPER_ADMIN_EMAIL) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // If user is logged in, prevent them from accessing /login and /signup
   if (
     user &&
