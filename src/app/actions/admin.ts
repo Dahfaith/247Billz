@@ -145,3 +145,63 @@ export async function getAdminUsers() {
   }
 }
 
+// ----------------------------------------------------
+// PHASE 3: TRANSACTIONS & SUBSCRIPTIONS
+// ----------------------------------------------------
+
+export async function getAdminTransactions() {
+  const supabase = getAdminClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('payments')
+      .select(`
+        id,
+        amount,
+        status,
+        payment_method,
+        created_at,
+        invoices ( invoice_number, business_id, businesses ( name ) )
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, transactions: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getAdminSubscriptions() {
+  const supabase = getAdminClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('businesses')
+      .select('id, name, subscription_tier, email, created_at')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    
+    // Group them for stats
+    const stats = {
+      free: 0,
+      starter: 0,
+      pro: 0,
+      business: 0
+    }
+
+    data.forEach((b) => {
+      if (stats[b.subscription_tier as keyof typeof stats] !== undefined) {
+        stats[b.subscription_tier as keyof typeof stats]++
+      } else {
+        stats.free++
+      }
+    })
+
+    return { success: true, subscriptions: data, stats }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
