@@ -18,6 +18,17 @@ export default async function NewInvoicePage() {
 
   const platformSettings = await getPublicPlatformSettings();
 
+  let clients = [];
+  if (business) {
+    const { data } = await supabase
+      .from('clients')
+      .select('id, name, email')
+      .eq('business_id', business.id)
+      .order('name');
+    
+    clients = data || [];
+  }
+
   return (
     <div className="min-h-screen bg-muted/20">
       <div className="border-b bg-background px-4 sm:px-8 py-6">
@@ -25,7 +36,7 @@ export default async function NewInvoicePage() {
         <p className="text-muted-foreground text-sm mt-1">Fill in the details below to generate a new invoice.</p>
       </div>
       <div className="p-4 sm:p-8">
-        <InvoiceBuilder business={business} platformSettings={platformSettings} />
+        <InvoiceBuilder business={business} platformSettings={platformSettings} clients={clients} />
       </div>
     </div>
   );

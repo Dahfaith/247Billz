@@ -11,11 +11,15 @@ import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { CURRENCIES, getCurrencySymbol, formatCurrency } from "@/lib/currency";
 
-export default function InvoiceBuilder({ business, platformSettings }: { business: any, platformSettings?: any }) {
+export default function InvoiceBuilder({ business, platformSettings, clients = [] }: { business: any, platformSettings?: any, clients?: any[] }) {
   const router = useRouter();
   const [currency, setCurrency] = useState(business?.currency || "NGN");
-  const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
+  const [selectedClientId, setSelectedClientId] = useState("");
+  
+  const selectedClient = clients.find(c => c.id === selectedClientId);
+  const clientName = selectedClient?.name || "";
+  const clientEmail = selectedClient?.email || "";
+
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState("");
   const [items, setItems] = useState([{ id: 1, description: "", quantity: 1, price: 0 }]);
@@ -66,14 +70,25 @@ export default function InvoiceBuilder({ business, platformSettings }: { busines
       <div className="space-y-8 bg-card border border-border p-6 rounded-xl shadow-sm">
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Client Details</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="clientName">Client Name</Label>
-              <Input id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Acme Corp" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="clientEmail">Client Email</Label>
-              <Input id="clientEmail" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="billing@acme.com" />
+              <Label htmlFor="client_id">Select Client</Label>
+              <select 
+                id="client_id" 
+                name="client_id"
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+                required 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">-- Choose a client --</option>
+                {clients.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              {clients.length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">You need to add a client in the CRM first!</p>
+              )}
             </div>
           </div>
         </div>

@@ -58,7 +58,6 @@ export default async function AdminUsersPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
           <div className="overflow-x-auto pb-4">
             <Table className="min-w-[800px]">
               <TableHeader className="bg-slate-50 dark:bg-slate-800/50">

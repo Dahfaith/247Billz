@@ -241,7 +241,8 @@ export async function getPublicPlatformSettings() {
   const { data } = await supabaseAdmin
     .from('platform_settings')
     .select('enable_invoicing, enable_estimates, enable_receipts, enable_subscriptions, enable_tax_computation, enable_multi_currency, enable_multi_language, require_2fa, strict_kyc_mode')
-    .single()
+    .limit(1)
+    .maybeSingle()
 
   return data
 }

@@ -14,7 +14,7 @@ export default async function ReceiptsPage() {
     .select('id')
     .eq('owner_id', user.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   let receipts = [];
   

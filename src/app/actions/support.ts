@@ -16,8 +16,7 @@ export async function createSupportTicket(formData: FormData) {
     throw new Error("Subject and message are required")
   }
 
-  // Get business ID for the user
-  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).single()
+  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).limit(1).maybeSingle()
 
   if (!business) {
     return { success: false, error: "You must complete your business profile before submitting a support ticket." }
@@ -47,7 +46,7 @@ export async function getUserTickets() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { tickets: [] }
 
-  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).single()
+  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).limit(1).maybeSingle()
   if (!business) {
     console.error("No business found for user:", user.id);
     return { tickets: [] }
@@ -71,7 +70,7 @@ export async function getUserTicketByNumber(ticketNumber: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
-  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).single()
+  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).limit(1).maybeSingle()
   if (!business) return { success: false, error: 'Business not found' }
 
   const { data, error } = await supabase
