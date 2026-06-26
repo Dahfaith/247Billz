@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@supabase/supabase-js'
 
 // Helper to get the Admin Supabase Client (bypasses RLS)
@@ -218,6 +219,35 @@ export async function getAdminSettings() {
     return { success: true, settings: data }
   } catch (error: any) {
     return { success: false, error: error.message }
+  }
+}
+
+export async function updateAdminSettings(formData: FormData) {
+  const supabase = getAdminClient()
+  try {
+    const rawData = Object.fromEntries(formData.entries())
+    
+    // Convert boolean toggles properly if they exist in form (Switch components don't pass standard booleans easily without hidden inputs, so we check presence or string value)
+    const updateData: any = { ...rawData }
+    
+    // Explicitly handle fields that might be empty/null to update them
+    const { data: existing } = await supabase.from('platform_settings').select('id').single()
+    
+    let error;
+    if (existing) {
+      const res = await supabase.from('platform_settings').update(updateData).eq('id', existing.id)
+      error = res.error
+    } else {
+      const res = await supabase.from('platform_settings').insert([updateData])
+      error = res.error
+    }
+    
+    if (error) throw error
+    
+    revalidatePath('/admin', 'layout')
+  } catch (error: any) {
+    console.error("Failed to update settings:", error.message)
+    throw new Error(error.message)
   }
 }
 
