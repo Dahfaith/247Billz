@@ -74,7 +74,10 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url)
     }
     
-    if (!process.env.SUPER_ADMIN_EMAIL || user.email !== process.env.SUPER_ADMIN_EMAIL) {
+    if (
+      !process.env.SUPER_ADMIN_EMAIL || 
+      user.email?.toLowerCase() !== process.env.SUPER_ADMIN_EMAIL.toLowerCase()
+    ) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)

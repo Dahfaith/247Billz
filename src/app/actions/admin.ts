@@ -101,3 +101,47 @@ export async function getAdminDashboardStats() {
     return { success: false, error: error.message }
   }
 }
+
+export async function getAdminBusinesses() {
+  const supabase = getAdminClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('businesses')
+      .select(`
+        id,
+        name,
+        email,
+        phone,
+        subscription_tier,
+        created_at,
+        logo_url,
+        owner:profiles(id, role)
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, businesses: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getAdminUsers() {
+  const supabase = getAdminClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, users: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
