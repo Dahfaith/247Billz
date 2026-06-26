@@ -117,7 +117,8 @@ export async function getAdminBusinesses() {
         subscription_tier,
         created_at,
         logo_url,
-        owner:profiles(id, role)
+        status,
+        owner:profiles(id, role, status)
       `)
       .order('created_at', { ascending: false })
 
@@ -141,6 +142,50 @@ export async function getAdminUsers() {
     if (error) throw error
 
     return { success: true, users: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function toggleBusinessSuspension(businessId: string, currentStatus: string) {
+  const supabase = getAdminClient()
+  try {
+    const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended'
+    const { error } = await supabase
+      .from('businesses')
+      .update({ status: newStatus })
+      .eq('id', businessId)
+
+    if (error) throw error
+    revalidatePath('/admin/businesses')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function toggleUserBan(userId: string, currentStatus: string) {
+  const supabase = getAdminClient()
+  try {
+    const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended'
+    
+    // Update our profiles table
+    const { error } = await supabase
+      .from('profiles')
+      .update({ status: newStatus })
+      .eq('id', userId)
+
+    if (error) throw error
+
+    // Also update the auth.users table using Supabase Admin Auth API
+    if (newStatus === 'suspended') {
+      await supabase.auth.admin.updateUserById(userId, { ban_duration: '876000h' }) // Ban for 100 years
+    } else {
+      await supabase.auth.admin.updateUserById(userId, { ban_duration: 'none' }) // Unban
+    }
+
+    revalidatePath('/admin/users')
+    return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }
   }
@@ -227,8 +272,19 @@ export async function updateAdminSettings(formData: FormData) {
   try {
     const rawData = Object.fromEntries(formData.entries())
     
-    // Convert boolean toggles properly if they exist in form (Switch components don't pass standard booleans easily without hidden inputs, so we check presence or string value)
     const updateData: any = { ...rawData }
+    delete updateData.form_type;
+
+    if (rawData.form_type === 'services') {
+      const booleanKeys = [
+        'enable_invoicing', 'enable_estimates', 'enable_receipts', 
+        'enable_subscriptions', 'enable_tax_computation', 'enable_multi_currency', 
+        'enable_multi_language', 'require_2fa', 'strict_kyc_mode'
+      ];
+      booleanKeys.forEach(key => {
+        updateData[key] = rawData[key] === 'on' || rawData[key] === 'true';
+      });
+    }
     
     // Explicitly handle fields that might be empty/null to update them
     const { data: existing } = await supabase.from('platform_settings').select('id').single()

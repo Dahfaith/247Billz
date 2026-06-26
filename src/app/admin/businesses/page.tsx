@@ -1,4 +1,4 @@
-import { getAdminBusinesses } from '@/app/actions/admin'
+import { getAdminBusinesses, toggleBusinessSuspension } from '@/app/actions/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Search, Download, Building2, UserCog, Ban, ArrowUpCircle } from 'lucide-react'
+import { MoreHorizontal, Search, Download, Building2, UserCog, Ban, ArrowUpCircle, CheckCircle2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
 export const dynamic = 'force-dynamic'
@@ -80,8 +80,8 @@ export default async function AdminBusinessesPage() {
                         <div>
                           <div className="font-medium text-slate-900 dark:text-slate-100">{business.name}</div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
-                            Active
+                            <span className={`w-2 h-2 rounded-full ${business.status === 'suspended' ? 'bg-red-500' : 'bg-[#10B981]'}`}></span>
+                            <span className="capitalize">{business.status || 'Active'}</span>
                           </div>
                         </div>
                       </div>
@@ -121,10 +121,12 @@ export default async function AdminBusinessesPage() {
                             <ArrowUpCircle className="mr-2 h-4 w-4" />
                             Upgrade Plan
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400">
-                            <Ban className="mr-2 h-4 w-4" />
-                            Suspend Account
-                          </DropdownMenuItem>
+                          <form action={async () => { "use server"; await toggleBusinessSuspension(business.id, business.status || 'active'); }}>
+                            <button type="submit" className={`w-full flex items-center px-2 py-1.5 text-sm outline-none transition-colors rounded-sm ${business.status === 'suspended' ? 'text-green-600 focus:bg-slate-100 hover:bg-slate-100' : 'text-red-600 focus:bg-slate-100 hover:bg-slate-100'}`}>
+                              {business.status === 'suspended' ? <CheckCircle2 className="mr-2 h-4 w-4" /> : <Ban className="mr-2 h-4 w-4" />}
+                              {business.status === 'suspended' ? 'Activate Account' : 'Suspend Account'}
+                            </button>
+                          </form>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

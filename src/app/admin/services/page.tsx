@@ -1,8 +1,9 @@
-import { getAdminSettings } from '@/app/actions/admin'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { getAdminSettings, updateAdminSettings } from '@/app/actions/admin'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Server, Settings2, ShieldCheck, Languages, Receipt, Calculator } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Server, Settings2, ShieldCheck, Languages, Receipt, Calculator, Save } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,112 +32,121 @@ export default async function AdminServicesPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Core Billing Engine */}
-        <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-1">
-              <Server className="w-5 h-5 text-blue-500" />
-              <CardTitle className="text-lg">Core Billing Engine</CardTitle>
-            </div>
-            <CardDescription>Fundamental invoicing and payment features.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Invoicing Module</Label>
-                <p className="text-sm text-slate-500">Allow users to generate and send invoices.</p>
+      <form action={updateAdminSettings}>
+        <input type="hidden" name="form_type" value="services" />
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Core Billing Engine */}
+          <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-1">
+                <Server className="w-5 h-5 text-blue-500" />
+                <CardTitle className="text-lg">Core Billing Engine</CardTitle>
               </div>
-              <Switch checked={data.enable_invoicing} />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Estimates & Quotations</Label>
-                <p className="text-sm text-slate-500">Allow users to create project estimates.</p>
+              <CardDescription>Fundamental invoicing and payment features.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Invoicing Module</Label>
+                  <p className="text-sm text-slate-500">Allow users to generate and send invoices.</p>
+                </div>
+                <Switch name="enable_invoicing" value="on" defaultChecked={data.enable_invoicing} />
               </div>
-              <Switch checked={data.enable_estimates} />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Receipt Generation</Label>
-                <p className="text-sm text-slate-500">Automatically generate PDF receipts after payment.</p>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Estimates & Quotations</Label>
+                  <p className="text-sm text-slate-500">Allow users to create project estimates.</p>
+                </div>
+                <Switch name="enable_estimates" value="on" defaultChecked={data.enable_estimates} />
               </div>
-              <Switch checked={data.enable_receipts} />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Recurring Billing (Subscriptions)</Label>
-                <p className="text-sm text-slate-500">Let businesses charge their clients on a schedule.</p>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Receipt Generation</Label>
+                  <p className="text-sm text-slate-500">Automatically generate PDF receipts after payment.</p>
+                </div>
+                <Switch name="enable_receipts" value="on" defaultChecked={data.enable_receipts} />
               </div>
-              <Switch checked={data.enable_subscriptions} />
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Recurring Billing (Subscriptions)</Label>
+                  <p className="text-sm text-slate-500">Let businesses charge their clients on a schedule.</p>
+                </div>
+                <Switch name="enable_subscriptions" value="on" defaultChecked={data.enable_subscriptions} />
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Localization & Taxes */}
-        <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-1">
-              <Languages className="w-5 h-5 text-purple-500" />
-              <CardTitle className="text-lg">Localization & Taxes</CardTitle>
-            </div>
-            <CardDescription>Regional features and tax compliance.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-slate-400" />
-                  Tax Computation Engine
-                </Label>
-                <p className="text-sm text-slate-500">Enable automatic VAT/GST calculations.</p>
+          {/* Localization & Taxes */}
+          <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-1">
+                <Languages className="w-5 h-5 text-purple-500" />
+                <CardTitle className="text-lg">Localization & Taxes</CardTitle>
               </div>
-              <Switch checked={data.enable_tax_computation} />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Multi-Currency Support</Label>
-                <p className="text-sm text-slate-500">Allow invoicing in USD, GBP, EUR, NGN.</p>
+              <CardDescription>Regional features and tax compliance.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base flex items-center gap-2">
+                    <Calculator className="w-4 h-4 text-slate-400" />
+                    Tax Computation Engine
+                  </Label>
+                  <p className="text-sm text-slate-500">Enable automatic VAT/GST calculations.</p>
+                </div>
+                <Switch name="enable_tax_computation" value="on" defaultChecked={data.enable_tax_computation} />
               </div>
-              <Switch checked={data.enable_multi_currency} />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">Multi-Language Invoices</Label>
-                <p className="text-sm text-slate-500">Translate invoices to client's local language.</p>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Multi-Currency Support</Label>
+                  <p className="text-sm text-slate-500">Allow invoicing in USD, GBP, EUR, NGN.</p>
+                </div>
+                <Switch name="enable_multi_currency" value="on" defaultChecked={data.enable_multi_currency} />
               </div>
-              <Switch checked={data.enable_multi_language} />
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Multi-Language Invoices</Label>
+                  <p className="text-sm text-slate-500">Translate invoices to client's local language.</p>
+                </div>
+                <Switch name="enable_multi_language" value="on" defaultChecked={data.enable_multi_language} />
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Security & Compliance */}
-        <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm md:col-span-2">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-1">
-              <ShieldCheck className="w-5 h-5 text-[#10B981]" />
-              <CardTitle className="text-lg">Security & Compliance Limits</CardTitle>
-            </div>
-            <CardDescription>Global rate limits and security flags.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6 md:grid-cols-2">
-            <div className="flex items-center justify-between border border-[#E2E8F0] dark:border-slate-800 p-4 rounded-lg">
-              <div className="space-y-0.5">
-                <Label className="text-base">Require 2FA</Label>
-                <p className="text-sm text-slate-500">Force Two-Factor Auth for all Businesses.</p>
+          {/* Security & Compliance */}
+          <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm md:col-span-2">
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-1">
+                <ShieldCheck className="w-5 h-5 text-[#10B981]" />
+                <CardTitle className="text-lg">Security & Compliance Limits</CardTitle>
               </div>
-              <Switch checked={data.require_2fa} />
-            </div>
-            <div className="flex items-center justify-between border border-[#E2E8F0] dark:border-slate-800 p-4 rounded-lg">
-              <div className="space-y-0.5">
-                <Label className="text-base">Strict KYC Mode</Label>
-                <p className="text-sm text-slate-500">Block invoice sending until business is verified.</p>
+              <CardDescription>Global rate limits and security flags.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6 md:grid-cols-2">
+              <div className="flex items-center justify-between border border-[#E2E8F0] dark:border-slate-800 p-4 rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Require 2FA</Label>
+                  <p className="text-sm text-slate-500">Force Two-Factor Auth for all Businesses.</p>
+                </div>
+                <Switch name="require_2fa" value="on" defaultChecked={data.require_2fa} />
               </div>
-              <Switch checked={data.strict_kyc_mode} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              <div className="flex items-center justify-between border border-[#E2E8F0] dark:border-slate-800 p-4 rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Strict KYC Mode</Label>
+                  <p className="text-sm text-slate-500">Block invoice sending until business is verified.</p>
+                </div>
+                <Switch name="strict_kyc_mode" value="on" defaultChecked={data.strict_kyc_mode} />
+              </div>
+            </CardContent>
+            <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-[#E2E8F0] dark:border-slate-800 flex justify-end">
+              <Button type="submit" size="lg" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200">
+                <Save className="w-4 h-4 mr-2" /> Save Configuration
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </form>
     </div>
   )
 }

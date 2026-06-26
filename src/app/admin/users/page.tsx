@@ -1,4 +1,4 @@
-import { getAdminUsers } from '@/app/actions/admin'
+import { getAdminUsers, toggleUserBan } from '@/app/actions/admin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Search, Download, Users, Ban, Mail } from 'lucide-react'
+import { MoreHorizontal, Search, Download, Users, Ban, Mail, CheckCircle2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
 export const dynamic = 'force-dynamic'
@@ -77,7 +77,10 @@ export default async function AdminUsersPage() {
                           {user.email ? user.email.substring(0, 2).toUpperCase() : 'US'}
                         </div>
                         <div>
-                          <div className="font-medium text-slate-900 dark:text-slate-100">{user.email || 'No email provided'}</div>
+                          <div className="font-medium text-slate-900 dark:text-slate-100">
+                            {user.email || 'No email provided'}
+                            {user.status === 'suspended' && <span className="ml-2 text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full uppercase">Banned</span>}
+                          </div>
                           <div className="text-xs text-slate-500">{user.id}</div>
                         </div>
                       </div>
@@ -108,10 +111,12 @@ export default async function AdminUsersPage() {
                             Send Email
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="bg-[#E2E8F0] dark:bg-slate-800" />
-                          <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400">
-                            <Ban className="mr-2 h-4 w-4" />
-                            Ban User
-                          </DropdownMenuItem>
+                          <form action={async () => { "use server"; await toggleUserBan(user.id, user.status || 'active'); }}>
+                            <button type="submit" className={`w-full flex items-center px-2 py-1.5 text-sm outline-none transition-colors rounded-sm ${user.status === 'suspended' ? 'text-green-600 hover:bg-slate-100 focus:bg-slate-100' : 'text-red-600 hover:bg-slate-100 focus:bg-slate-100'}`}>
+                              {user.status === 'suspended' ? <CheckCircle2 className="mr-2 h-4 w-4" /> : <Ban className="mr-2 h-4 w-4" />}
+                              {user.status === 'suspended' ? 'Unban User' : 'Ban User'}
+                            </button>
+                          </form>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
