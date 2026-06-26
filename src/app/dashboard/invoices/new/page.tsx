@@ -18,7 +18,7 @@ export default async function NewInvoicePage() {
 
   const platformSettings = await getPublicPlatformSettings();
 
-  let clients = [];
+  let clients: any[] = [];
   if (business) {
     const { data } = await supabase
       .from('clients')
