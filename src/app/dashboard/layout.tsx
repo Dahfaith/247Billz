@@ -1,5 +1,5 @@
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger } from "@/components/ui/sidebar";
-import { LayoutDashboard, FileText, Receipt, Users, CreditCard, BarChart, Settings, Rocket, Gift } from "lucide-react";
+import { LayoutDashboard, FileText, Receipt, Users, CreditCard, BarChart, Settings, Rocket, Gift, Bell } from "lucide-react";
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/lib/supabase/server";
@@ -128,6 +128,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/clients"><Users /> <span>Clients</span></Link></SidebarMenuButton></SidebarMenuItem>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/payments"><CreditCard /> <span>Payments</span></Link></SidebarMenuButton></SidebarMenuItem>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/reports"><BarChart /> <span>Reports</span></Link></SidebarMenuButton></SidebarMenuItem>
+                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/notifications"><Bell /> <span>Notifications</span></Link></SidebarMenuButton></SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

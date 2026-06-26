@@ -117,26 +117,34 @@ export default function InvoiceBuilder({ business, platformSettings }: { busines
             </Button>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {items.map((item, index) => (
-              <div key={item.id} className="flex gap-2 sm:gap-3 items-start">
-                <div className="flex-1 space-y-2">
-                  {index === 0 && <Label className="text-xs">Description</Label>}
-                  <Input value={item.description} onChange={(e) => updateItem(item.id, 'description', e.target.value)} placeholder="Item" />
+              <div key={item.id} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-muted/30 p-4 rounded-lg border border-border/50">
+                <div className="flex-1 w-full space-y-2">
+                  <Label className={index === 0 ? "text-xs sm:block hidden" : "sm:hidden text-xs"}>Description</Label>
+                  <Input value={item.description} onChange={(e) => updateItem(item.id, 'description', e.target.value)} placeholder="Item description" />
                 </div>
-                <div className="w-16 sm:w-20 space-y-2 shrink-0">
-                  {index === 0 && <Label className="text-xs">Qty</Label>}
-                  <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))} className="px-2 sm:px-3 text-center sm:text-left" />
+                <div className="w-full sm:w-24 space-y-2">
+                  <Label className={index === 0 ? "text-xs sm:block hidden" : "sm:hidden text-xs"}>Qty</Label>
+                  <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))} />
                 </div>
-                <div className="w-24 sm:w-32 space-y-2 shrink-0">
-                  {index === 0 && <Label className="text-xs truncate">Price ({getCurrencySymbol(currency)})</Label>}
-                  <Input type="number" min="0" value={item.price} onChange={(e) => updateItem(item.id, 'price', Number(e.target.value))} className="px-2 sm:px-3" />
+                <div className="w-full sm:w-32 space-y-2">
+                  <Label className={index === 0 ? "text-xs sm:block hidden" : "sm:hidden text-xs truncate"}>Price ({getCurrencySymbol(currency)})</Label>
+                  <Input type="number" min="0" value={item.price} onChange={(e) => updateItem(item.id, 'price', Number(e.target.value))} />
                 </div>
-                <div className={index === 0 ? "pt-8 shrink-0" : "pt-0 shrink-0"}>
-                  <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 -ml-1 sm:ml-0 h-10 w-8 sm:w-10" onClick={() => removeItem(item.id)} disabled={items.length === 1}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <div className="hidden sm:block w-24 font-medium text-right mt-6">
+                  {formatCurrency(item.quantity * item.price, currency)}
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-destructive hover:bg-destructive/10 mt-2 sm:mt-6 w-full sm:w-10" 
+                  onClick={() => removeItem(item.id)} 
+                  disabled={items.length === 1}
+                >
+                  <Trash2 className="w-4 h-4 mr-2 sm:mr-0" />
+                  <span className="sm:hidden">Remove</span>
+                </Button>
               </div>
             ))}
           </div>
@@ -168,7 +176,7 @@ export default function InvoiceBuilder({ business, platformSettings }: { busines
           {/* Header Banner - Using Brand Color */}
           <div className="h-4 bg-primary w-full absolute top-0 left-0" />
           
-          <div className="p-6 sm:p-10 flex-1 flex flex-col mt-4">
+          <div className="p-4 sm:p-10 flex-1 flex flex-col mt-4">
             <div className="flex flex-col sm:flex-row justify-between items-start mb-8 sm:mb-12 gap-6">
               <div>
                 {business?.logo_url ? (
@@ -216,7 +224,7 @@ export default function InvoiceBuilder({ business, platformSettings }: { busines
             </div>
 
             <div className="flex-1 overflow-x-auto pb-4">
-              <table className="w-full text-left text-sm min-w-[350px]">
+              <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-y border-slate-200">
                     <th className="py-3 font-semibold text-slate-900">Description</th>

@@ -28,6 +28,7 @@ export default async function AdminApiProvidersPage() {
             
             <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm relative overflow-hidden">
               <form action={updateAdminSettings}>
+                <input type="hidden" name="form_type" value="api_providers" />
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Shield className="w-24 h-24" />
                 </div>
@@ -70,6 +71,7 @@ export default async function AdminApiProvidersPage() {
 
             <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm relative overflow-hidden">
               <form action={updateAdminSettings}>
+                <input type="hidden" name="form_type" value="api_providers" />
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Shield className="w-24 h-24" />
                 </div>
@@ -119,6 +121,7 @@ export default async function AdminApiProvidersPage() {
             
             <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm relative overflow-hidden">
               <form action={updateAdminSettings}>
+                <input type="hidden" name="form_type" value="api_providers" />
                 <div className="absolute top-0 right-0 p-4 opacity-5">
                   <KeyRound className="w-24 h-24" />
                 </div>

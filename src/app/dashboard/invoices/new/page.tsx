@@ -1,10 +1,14 @@
 import InvoiceBuilder from "@/components/invoice-builder";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicPlatformSettings } from "@/app/actions/settings";
+import { redirect } from "next/navigation";
 
 export default async function NewInvoicePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect('/login');
+  }
   const { data: business } = await supabase
     .from('businesses')
     .select('*')

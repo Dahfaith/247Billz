@@ -304,9 +304,7 @@ export async function updateAdminSettings(formData: FormData) {
   const supabase = getAdminClient()
   try {
     const rawData = Object.fromEntries(formData.entries())
-    
-    const updateData: any = { ...rawData }
-    delete updateData.form_type;
+    const updateData: any = {}
 
     if (rawData.form_type === 'services') {
       const booleanKeys = [
@@ -316,6 +314,11 @@ export async function updateAdminSettings(formData: FormData) {
       ];
       booleanKeys.forEach(key => {
         updateData[key] = rawData[key] === 'on' || rawData[key] === 'true';
+      });
+    } else if (rawData.form_type === 'api_providers') {
+      const textKeys = ['paystack_public_key', 'paystack_secret_key', 'flutterwave_public_key', 'flutterwave_secret_key', 'resend_api_key'];
+      textKeys.forEach(key => {
+        if (rawData[key] !== undefined) updateData[key] = rawData[key];
       });
     }
     

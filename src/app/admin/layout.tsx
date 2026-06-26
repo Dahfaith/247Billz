@@ -28,7 +28,7 @@ const navigation = [
   { name: 'CMS', href: '/admin/cms', icon: FileEdit },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Audit Logs', href: '/admin/audit', icon: ShieldAlert },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Settings', href: '/admin/api-providers', icon: Settings },
 ]
 
 export default function AdminLayout({
@@ -102,7 +102,7 @@ export default function AdminLayout({
         </div>
 
         <div className="p-4 border-t border-[#E2E8F0] dark:border-slate-800 space-y-1">
-          <Link href="/admin/profile" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50">
+          <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50">
             <User className="w-5 h-5 text-slate-400" />
             Profile
           </Link>
