@@ -11,7 +11,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { CURRENCIES, getCurrencySymbol, formatCurrency } from "@/lib/currency";
 
-export default function InvoiceBuilder({ business }: { business: any }) {
+export default function InvoiceBuilder({ business, platformSettings }: { business: any, platformSettings?: any }) {
   const router = useRouter();
   const [currency, setCurrency] = useState(business?.currency || "NGN");
   const [clientName, setClientName] = useState("");
@@ -89,21 +89,23 @@ export default function InvoiceBuilder({ business }: { business: any }) {
               <Label htmlFor="dueDate">Due Date</Label>
               <Input id="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <select
-                id="currency"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {CURRENCIES.map(c => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} ({c.symbol})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {platformSettings?.enable_multi_currency !== false && (
+              <div className="space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <select
+                  id="currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
 

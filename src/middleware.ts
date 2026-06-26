@@ -2,7 +2,19 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  let response = await updateSession(request)
+  
+  // Track affiliate referrals
+  const ref = request.nextUrl.searchParams.get('ref')
+  if (ref) {
+    // Cookie expires in 30 days
+    response.cookies.set('247billz_ref', ref, {
+      maxAge: 30 * 24 * 60 * 60,
+      path: '/',
+    })
+  }
+
+  return response
 }
 
 export const config = {

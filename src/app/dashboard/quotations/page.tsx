@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Receipt, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/currency";
+import { SendEmailButton } from "@/components/send-email-button";
 
 export default async function QuotationsPage() {
   const supabase = await createClient();
@@ -98,7 +99,8 @@ export default async function QuotationsPage() {
                           {quote.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right flex justify-end gap-2">
+                      <td className="px-6 py-4 text-right flex justify-end gap-2 items-center">
+                        <SendEmailButton targetId={quote.id} clientEmail={quote.client?.email} type="quotation" />
                         {quote.status === 'accepted' && (
                           <form action={async () => {
                             "use server";
@@ -160,7 +162,8 @@ export default async function QuotationsPage() {
                      </div>
                      <div className="flex justify-between items-center pt-2 border-t border-border/50">
                         <div className="text-xs text-slate-500">Valid: {quote.valid_until}</div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
+                          <SendEmailButton targetId={quote.id} clientEmail={quote.client?.email} type="quotation" />
                           {quote.status === 'accepted' && (
                             <form action={async () => {
                               "use server";

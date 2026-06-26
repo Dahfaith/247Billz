@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Mail, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
-import { sendInvoiceEmail } from "@/app/actions/email";
+import { sendInvoiceEmail, sendQuotationEmail } from "@/app/actions/email";
 
-export function SendEmailButton({ invoiceId, clientEmail }: { invoiceId: string, clientEmail?: string }) {
+export function SendEmailButton({ targetId, clientEmail, type = 'invoice' }: { targetId: string, clientEmail?: string, type?: 'invoice' | 'quotation' }) {
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,9 @@ export function SendEmailButton({ invoiceId, clientEmail }: { invoiceId: string,
     setIsSuccess(false);
 
     try {
-      const result = await sendInvoiceEmail(invoiceId);
+      const result = type === 'invoice' 
+        ? await sendInvoiceEmail(targetId)
+        : await sendQuotationEmail(targetId);
       if (result.success) {
         setIsSuccess(true);
         if (result.mocked) {

@@ -36,6 +36,12 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
+    const { data: businessToUpdate, error: fetchError } = await supabase
+      .from('businesses')
+      .select('referred_by')
+      .eq('id', businessId)
+      .single()
+
     const { error: updateError } = await supabase
       .from('businesses')
       .update({ subscription_tier: upgradeToTier })
@@ -43,6 +49,28 @@ export async function GET(request: NextRequest) {
 
     if (updateError) {
       return NextResponse.redirect(`${baseUrl}/dashboard/billing?error=Database+Update+Failed`)
+    }
+
+    // Process Affiliate Commission if they were referred and tier is Pro or Business
+    if (businessToUpdate?.referred_by && (upgradeToTier === 'pro' || upgradeToTier === 'business')) {
+      const amount = verifyData.data.amount
+      const commission = amount * 0.20 // 20% commission
+
+      const { data: affiliate } = await supabase
+        .from('affiliate_profiles')
+        .select('id, revenue_generated, commission_due')
+        .eq('promo_code', businessToUpdate.referred_by)
+        .single()
+
+      if (affiliate) {
+        await supabase
+          .from('affiliate_profiles')
+          .update({
+            revenue_generated: (parseFloat(affiliate.revenue_generated) || 0) + amount,
+            commission_due: (parseFloat(affiliate.commission_due) || 0) + commission
+          })
+          .eq('id', affiliate.id)
+      }
     }
 
     return NextResponse.redirect(`${baseUrl}/dashboard/billing?success=true&tier=${upgradeToTier}`)

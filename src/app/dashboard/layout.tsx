@@ -33,17 +33,36 @@ export default async function DashboardLayout({ children }: { children: React.Re
       await supabase.from('profiles').insert({ id: user.id, role: 'business_owner' });
     }
 
+    const referredBy = user.user_metadata?.referred_by || null;
+
     // Auto-create business
     const { data: newBusiness } = await supabase
       .from('businesses')
       .insert({
         owner_id: user.id,
         name: user.user_metadata?.business_name || 'My Business',
-        email: user.email
+        email: user.email,
+        referred_by: referredBy
       })
       .select('*')
       .single();
       
+    if (referredBy) {
+      // Increment the referring affiliate's referral count
+      const { data: affiliate } = await supabase
+        .from('affiliate_profiles')
+        .select('id, referrals_count')
+        .eq('promo_code', referredBy)
+        .single();
+        
+      if (affiliate) {
+        await supabase
+          .from('affiliate_profiles')
+          .update({ referrals_count: (affiliate.referrals_count || 0) + 1 })
+          .eq('id', affiliate.id);
+      }
+    }
+
     business = newBusiness;
   }
 

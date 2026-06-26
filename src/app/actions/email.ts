@@ -164,3 +164,93 @@ export async function sendOverdueReminderEmail(invoice: any) {
     return { success: false, error: error.message }
   }
 }
+
+export async function sendQuotationEmail(quotationId: string) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { data: quote } = await supabase
+    .from('quotations')
+    .select(`
+      *,
+      business:businesses(id, name, owner_id),
+      client:clients(name, email),
+      items:quotation_items(quantity, price)
+    `)
+    .eq('id', quotationId)
+    .single()
+
+  if (!quote) throw new Error("Quotation not found")
+  
+  if (quote.business.owner_id !== user.id) {
+    throw new Error("Unauthorized")
+  }
+
+  if (!quote.client?.email) {
+    throw new Error("This client does not have an email address on file.")
+  }
+
+  const clientEmail = quote.client.email
+  const businessName = quote.business.name || "A business"
+  const quoteTotal = quote.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0
+  
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const quoteUrl = `${baseUrl}/quotation/${quote.secure_token}`
+
+  const htmlContent = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #0f172a; font-size: 24px; margin: 0;">New Estimate from ${businessName}</h1>
+      </div>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; text-align: center;">
+        <p style="color: #475569; font-size: 16px; margin-top: 0;">
+          Hi ${quote.client.name},
+        </p>
+        <p style="color: #475569; font-size: 16px; margin-bottom: 24px;">
+          ${businessName} has sent you a new estimate (<strong>${quote.quotation_number}</strong>) for <strong>${formatCurrency(quoteTotal, quote.currency)}</strong>.
+        </p>
+        
+        <a href="${quoteUrl}" style="display: inline-block; background-color: #f97316; color: white; font-weight: bold; font-size: 16px; text-decoration: none; padding: 14px 28px; border-radius: 8px;">
+          View &amp; Accept Estimate
+        </a>
+        
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 24px;">
+          This estimate is valid until ${quote.valid_until}.
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+          Powered securely by <strong>247Billz</strong>
+        </p>
+      </div>
+    </div>
+  `
+
+  if (!resend) {
+    await new Promise(r => setTimeout(r, 1500))
+    return { success: true, mocked: true }
+  }
+
+  try {
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'billing@updates.247billz.com'
+    const { data, error } = await resend.emails.send({
+      from: `${businessName} via 247Billz <${fromEmail}>`, 
+      to: [clientEmail],
+      subject: `Estimate ${quote.quotation_number} from ${businessName}`,
+      html: htmlContent,
+    })
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return { success: true, mocked: false, id: data?.id }
+  } catch (error: any) {
+    throw new Error(error.message || "Failed to send email")
+  }
+}

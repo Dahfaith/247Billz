@@ -21,6 +21,25 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
 
   if (!business) throw new Error("Business profile not found")
 
+  if (business.subscription_tier === tier) {
+    throw new Error(`You are already on the ${tier} plan.`);
+  }
+
+  const tierRanks = { free: 0, starter: 1, pro: 2, business: 3 };
+  const currentRank = tierRanks[(business.subscription_tier as keyof typeof tierRanks) || 'free'];
+  const targetRank = tierRanks[tier];
+
+  // If downgrading, just update the database for free
+  if (targetRank < currentRank) {
+    const { error } = await supabase
+      .from('businesses')
+      .update({ subscription_tier: tier })
+      .eq('id', business.id);
+      
+    if (error) throw new Error("Failed to downgrade plan");
+    redirect('/dashboard/billing?success=true&downgraded=true');
+  }
+
   // 2. Map tier to price
   const pricing = {
     starter: 2100,
@@ -37,11 +56,12 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
   // 4. Call Flutterwave Standard Checkout API
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const redirectUrl = `${baseUrl}/api/flw-subscription-callback`
+  const currency = business.currency || 'NGN'
 
   const payload = {
     tx_ref: txRef,
     amount: amount.toString(),
-    currency: "NGN",
+    currency: currency,
     redirect_url: redirectUrl,
     customer: {
       email: business.email || user.email,

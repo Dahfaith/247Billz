@@ -105,7 +105,7 @@ export default async function InvoicesPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <SendEmailButton invoiceId={invoice.id} clientEmail={invoice.client?.email} />
+                          <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
                           <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">
                             <Link href={`/invoice/${invoice.secure_token}`} target="_blank">
                               View
@@ -141,7 +141,7 @@ export default async function InvoicesPage() {
                      <div className="flex justify-between items-center pt-2 border-t border-border/50">
                         <div className="text-xs text-slate-500">Issued: {invoice.issue_date}</div>
                         <div className="flex gap-2">
-                          <SendEmailButton invoiceId={invoice.id} clientEmail={invoice.client?.email} />
+                          <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
                              <Link href={`/invoice/${invoice.secure_token}`} target="_blank">View</Link>
                           </Button>

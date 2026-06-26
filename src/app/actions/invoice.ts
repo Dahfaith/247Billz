@@ -15,10 +15,17 @@ export async function createInvoice(formData: FormData) {
   // 2. Fetch business ID
   const { data: business } = await supabase
     .from('businesses')
-    .select('id')
+    .select('id, phone, address')
     .eq('owner_id', user.id)
     .limit(1)
     .single()
+
+  const { getPublicPlatformSettings } = await import('@/app/actions/settings')
+  const platformSettings = await getPublicPlatformSettings()
+
+  if (platformSettings?.strict_kyc_mode && business && (!business.phone || !business.address)) {
+    throw new Error('Please complete your Business Profile (Phone & Address) in Settings before creating invoices (Strict KYC Mode active).')
+  }
 
   let businessId = business?.id
 

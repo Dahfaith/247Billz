@@ -11,12 +11,19 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id')
+    .select('id, phone, address')
     .eq('owner_id', user.id)
     .limit(1)
     .single()
 
   if (!business) throw new Error("Business not found")
+
+  const { getPublicPlatformSettings } = await import('@/app/actions/settings')
+  const platformSettings = await getPublicPlatformSettings()
+
+  if (platformSettings?.strict_kyc_mode && (!business.phone || !business.address)) {
+    throw new Error('Please complete your Business Profile (Phone & Address) in Settings before creating estimates (Strict KYC Mode active).')
+  }
 
   const client_id = formData.get('client_id') as string
   const issue_date = formData.get('issue_date') as string

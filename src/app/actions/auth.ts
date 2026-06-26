@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 export async function login(formData: FormData) {
@@ -34,6 +35,9 @@ export async function signup(formData: FormData) {
   const name = formData.get('name') as string // Full Name
   const businessName = formData.get('businessName') as string // Business Name
 
+  const cookieStore = await cookies()
+  const referredBy = cookieStore.get('247billz_ref')?.value
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -41,6 +45,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: name,
         business_name: businessName || name, // Fallback to full name if missing
+        referred_by: referredBy || null
       }
     }
   })
