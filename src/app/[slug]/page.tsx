@@ -1,0 +1,56 @@
+import { createClient } from '@supabase/supabase-js'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+
+// Use anon client for public read access
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+export const revalidate = 60 // Cache the page for 60 seconds
+
+export default async function PublicCMSPage({ params }: { params: { slug: string } }) {
+  const { data: page, error } = await supabase
+    .from('cms_pages')
+    .select('*')
+    .eq('slug', params.slug)
+    .eq('status', 'published')
+    .single()
+
+  if (error || !page) {
+    notFound()
+  }
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] selection:bg-[#F97316]/30">
+      {/* Simple Header */}
+      <header className="border-b border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-[#1E293B]">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="font-bold text-xl text-[#0F172A] dark:text-white flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#F97316] to-[#EA580C] rounded-lg flex items-center justify-center text-white font-bold">
+              24
+            </div>
+            247Billz
+          </Link>
+          <Link href="/" className="text-sm font-medium text-[#64748B] hover:text-[#0F172A] dark:hover:text-white flex items-center gap-1 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
+      </header>
+
+      {/* Page Content */}
+      <main className="max-w-4xl mx-auto px-6 py-12 md:py-20">
+        <article className="prose prose-slate dark:prose-invert prose-headings:font-bold prose-h1:text-4xl prose-h1:text-[#0F172A] dark:prose-h1:text-white prose-a:text-[#F97316] hover:prose-a:text-[#EA580C] max-w-none bg-white dark:bg-[#1E293B] p-8 md:p-12 rounded-2xl border border-[#E2E8F0] dark:border-slate-800 shadow-sm">
+          <div dangerouslySetInnerHTML={{ __html: page.content }} />
+        </article>
+      </main>
+
+      {/* Simple Footer */}
+      <footer className="border-t border-[#E2E8F0] dark:border-slate-800 py-8 text-center text-sm text-[#64748B] dark:text-slate-400">
+        &copy; {new Date().getFullYear()} 247Billz. All rights reserved.
+      </footer>
+    </div>
+  )
+}
