@@ -1,3 +1,4 @@
+import { getAdminSettings } from '@/app/actions/admin'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
@@ -5,7 +6,22 @@ import { Server, Settings2, ShieldCheck, Languages, Receipt, Calculator } from '
 
 export const dynamic = 'force-dynamic'
 
-export default function AdminServicesPage() {
+export default async function AdminServicesPage() {
+  const { success, settings } = await getAdminSettings()
+  
+  // Default fallback if table is empty
+  const data = settings || {
+    enable_invoicing: true,
+    enable_estimates: true,
+    enable_receipts: true,
+    enable_subscriptions: false,
+    enable_tax_computation: true,
+    enable_multi_currency: true,
+    enable_multi_language: false,
+    require_2fa: false,
+    strict_kyc_mode: true
+  }
+
   return (
     <div className="space-y-6 max-w-5xl">
       <div>
@@ -31,28 +47,28 @@ export default function AdminServicesPage() {
                 <Label className="text-base">Invoicing Module</Label>
                 <p className="text-sm text-slate-500">Allow users to generate and send invoices.</p>
               </div>
-              <Switch checked={true} />
+              <Switch checked={data.enable_invoicing} />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base">Estimates & Quotations</Label>
                 <p className="text-sm text-slate-500">Allow users to create project estimates.</p>
               </div>
-              <Switch checked={true} />
+              <Switch checked={data.enable_estimates} />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base">Receipt Generation</Label>
                 <p className="text-sm text-slate-500">Automatically generate PDF receipts after payment.</p>
               </div>
-              <Switch checked={true} />
+              <Switch checked={data.enable_receipts} />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base">Recurring Billing (Subscriptions)</Label>
                 <p className="text-sm text-slate-500">Let businesses charge their clients on a schedule.</p>
               </div>
-              <Switch checked={false} />
+              <Switch checked={data.enable_subscriptions} />
             </div>
           </CardContent>
         </Card>
@@ -75,21 +91,21 @@ export default function AdminServicesPage() {
                 </Label>
                 <p className="text-sm text-slate-500">Enable automatic VAT/GST calculations.</p>
               </div>
-              <Switch checked={true} />
+              <Switch checked={data.enable_tax_computation} />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base">Multi-Currency Support</Label>
                 <p className="text-sm text-slate-500">Allow invoicing in USD, GBP, EUR, NGN.</p>
               </div>
-              <Switch checked={true} />
+              <Switch checked={data.enable_multi_currency} />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base">Multi-Language Invoices</Label>
                 <p className="text-sm text-slate-500">Translate invoices to client's local language.</p>
               </div>
-              <Switch checked={false} />
+              <Switch checked={data.enable_multi_language} />
             </div>
           </CardContent>
         </Card>
@@ -109,14 +125,14 @@ export default function AdminServicesPage() {
                 <Label className="text-base">Require 2FA</Label>
                 <p className="text-sm text-slate-500">Force Two-Factor Auth for all Businesses.</p>
               </div>
-              <Switch checked={false} />
+              <Switch checked={data.require_2fa} />
             </div>
             <div className="flex items-center justify-between border border-[#E2E8F0] dark:border-slate-800 p-4 rounded-lg">
               <div className="space-y-0.5">
                 <Label className="text-base">Strict KYC Mode</Label>
                 <p className="text-sm text-slate-500">Block invoice sending until business is verified.</p>
               </div>
-              <Switch checked={true} />
+              <Switch checked={data.strict_kyc_mode} />
             </div>
           </CardContent>
         </Card>

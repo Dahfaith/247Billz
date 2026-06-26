@@ -12,16 +12,18 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 
+import { getAdminTickets } from '@/app/actions/admin'
+
 export const dynamic = 'force-dynamic'
 
-const MOCK_TICKETS = [
-  { id: 'TKT-1024', subject: 'Invoice failing to send via email', user: 'Acme Corp', priority: 'high', status: 'open', time: '2 hours ago' },
-  { id: 'TKT-1025', subject: 'How do I add VAT?', user: 'Global Services', priority: 'low', status: 'in_progress', time: '5 hours ago' },
-  { id: 'TKT-1026', subject: 'Payment link is broken', user: 'Tech Solutions', priority: 'critical', status: 'open', time: '10 mins ago' },
-  { id: 'TKT-1023', subject: 'Feature Request: Custom Domains', user: 'Premium Agency', priority: 'medium', status: 'resolved', time: '1 day ago' },
-]
+export default async function AdminSupportPage() {
+  const { success, tickets } = await getAdminTickets()
+  const displayTickets = tickets || []
+  
+  const openTickets = displayTickets.filter((t: any) => t.status === 'open').length
+  const inProgressTickets = displayTickets.filter((t: any) => t.status === 'in_progress').length
+  const resolvedTickets = displayTickets.filter((t: any) => t.status === 'resolved').length
 
-export default function AdminSupportPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -37,7 +39,7 @@ export default function AdminSupportPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Open Tickets</CardDescription>
-            <CardTitle className="text-3xl font-bold text-red-500">12</CardTitle>
+            <CardTitle className="text-3xl font-bold text-red-500">{openTickets}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -49,7 +51,7 @@ export default function AdminSupportPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>In Progress</CardDescription>
-            <CardTitle className="text-3xl font-bold text-amber-500">4</CardTitle>
+            <CardTitle className="text-3xl font-bold text-amber-500">{inProgressTickets}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -61,7 +63,7 @@ export default function AdminSupportPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Avg Response Time</CardDescription>
-            <CardTitle className="text-3xl font-bold text-blue-600">1h 15m</CardTitle>
+            <CardTitle className="text-3xl font-bold text-blue-600">--</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -72,8 +74,8 @@ export default function AdminSupportPage() {
 
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
-            <CardDescription>Resolved Today</CardDescription>
-            <CardTitle className="text-3xl font-bold text-green-500">28</CardTitle>
+            <CardDescription>Resolved</CardDescription>
+            <CardTitle className="text-3xl font-bold text-green-500">{resolvedTickets}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -107,16 +109,20 @@ export default function AdminSupportPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_TICKETS.map((ticket) => (
+            {displayTickets.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-slate-500">No support tickets found.</TableCell>
+              </TableRow>
+            ) : displayTickets.map((ticket: any) => (
               <TableRow key={ticket.id} className="border-[#E2E8F0] dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <TableCell className="font-medium text-slate-500 dark:text-slate-400">
-                  {ticket.id}
+                  {ticket.ticket_number}
                 </TableCell>
                 <TableCell className="font-medium text-slate-900 dark:text-slate-100">
                   {ticket.subject}
                 </TableCell>
                 <TableCell className="text-slate-600 dark:text-slate-400">
-                  {ticket.user}
+                  {ticket.businesses?.name || 'Unknown'}
                 </TableCell>
                 <TableCell className="text-center">
                   <Badge variant="outline"
@@ -140,7 +146,7 @@ export default function AdminSupportPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right text-sm text-slate-500">
-                  {ticket.time}
+                  {new Date(ticket.created_at).toLocaleDateString()}
                 </TableCell>
               </TableRow>
             ))}

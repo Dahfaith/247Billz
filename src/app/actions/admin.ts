@@ -205,3 +205,54 @@ export async function getAdminSubscriptions() {
     return { success: false, error: error.message }
   }
 }
+
+// ----------------------------------------------------
+// PHASE 4 & 5: SETTINGS, CMS, AFFILIATES, SUPPORT
+// ----------------------------------------------------
+
+export async function getAdminSettings() {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase.from('platform_settings').select('*').single()
+    if (error && error.code !== 'PGRST116') throw error
+    return { success: true, settings: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getAdminCMSPages() {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase.from('cms_pages').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    return { success: true, pages: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getAdminAffiliates() {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase.from('affiliate_profiles').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    return { success: true, affiliates: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getAdminTickets() {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase
+      .from('support_tickets')
+      .select('*, businesses(name)')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return { success: true, tickets: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}

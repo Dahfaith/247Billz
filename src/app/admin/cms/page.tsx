@@ -12,16 +12,18 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 
+import { getAdminCMSPages } from '@/app/actions/admin'
+
 export const dynamic = 'force-dynamic'
 
-const MOCK_PAGES = [
-  { id: 1, title: 'Privacy Policy', path: '/privacy-policy', status: 'published', lastEdited: '2026-06-25' },
-  { id: 2, title: 'Terms of Service', path: '/terms', status: 'published', lastEdited: '2026-06-25' },
-  { id: 3, title: 'Pricing Updates (Blog)', path: '/blog/pricing-2026', status: 'draft', lastEdited: '2026-06-26' },
-  { id: 4, title: 'How to use Invoices (FAQ)', path: '/help/invoices', status: 'published', lastEdited: '2026-06-20' },
-]
+export default async function AdminCMSPage() {
+  const { success, pages } = await getAdminCMSPages()
+  const displayPages = pages || []
+  
+  const total = displayPages.length
+  const published = displayPages.filter((p: any) => p.status === 'published').length
+  const drafts = displayPages.filter((p: any) => p.status === 'draft').length
 
-export default function AdminCMSPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -40,7 +42,7 @@ export default function AdminCMSPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Total Pages</CardDescription>
-            <CardTitle className="text-3xl font-bold">24</CardTitle>
+            <CardTitle className="text-3xl font-bold">{total}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-green-600">
@@ -52,7 +54,7 @@ export default function AdminCMSPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Published</CardDescription>
-            <CardTitle className="text-3xl font-bold">21</CardTitle>
+            <CardTitle className="text-3xl font-bold">{published}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-blue-600">
@@ -64,7 +66,7 @@ export default function AdminCMSPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Drafts</CardDescription>
-            <CardTitle className="text-3xl font-bold">3</CardTitle>
+            <CardTitle className="text-3xl font-bold">{drafts}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-amber-600">
@@ -101,7 +103,11 @@ export default function AdminCMSPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_PAGES.map((page) => (
+            {displayPages.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8 text-slate-500">No pages found.</TableCell>
+              </TableRow>
+            ) : displayPages.map((page: any) => (
               <TableRow key={page.id} className="border-[#E2E8F0] dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <TableCell className="font-medium text-slate-900 dark:text-slate-100">
                   <div className="flex items-center gap-2">
@@ -109,7 +115,7 @@ export default function AdminCMSPage() {
                     {page.title}
                   </div>
                 </TableCell>
-                <TableCell className="text-slate-500 font-mono text-xs">{page.path}</TableCell>
+                <TableCell className="text-slate-500 font-mono text-xs">{page.slug}</TableCell>
                 <TableCell className="text-center">
                   <Badge variant={page.status === 'published' ? 'default' : 'secondary'} 
                     className={
@@ -120,7 +126,7 @@ export default function AdminCMSPage() {
                     {page.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right text-slate-500">{page.lastEdited}</TableCell>
+                <TableCell className="text-right text-slate-500">{new Date(page.updated_at).toLocaleDateString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

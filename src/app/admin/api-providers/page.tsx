@@ -1,3 +1,4 @@
+import { getAdminSettings } from '@/app/actions/admin'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -6,7 +7,10 @@ import { KeyRound, Shield, EyeOff, Save, CheckCircle2 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-export default function AdminApiProvidersPage() {
+export default async function AdminApiProvidersPage() {
+  const { success, settings } = await getAdminSettings()
+  const data = settings || {}
+
   return (
     <div className="space-y-6 max-w-5xl">
       <div>
@@ -36,15 +40,19 @@ export default function AdminApiProvidersPage() {
               <CardContent className="space-y-4 relative z-10">
                 <div className="space-y-2">
                   <Label>Public Key</Label>
-                  <Input type="text" defaultValue="pk_live_************************" readOnly className="bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
+                  <Input type="text" defaultValue={data.paystack_public_key || "pk_live_************************"} readOnly className="bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
                 </div>
                 <div className="space-y-2">
                   <Label className="flex justify-between">
                     Secret Key
-                    <span className="text-[#10B981] text-xs flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Connected</span>
+                    {data.paystack_secret_key ? (
+                      <span className="text-[#10B981] text-xs flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Connected</span>
+                    ) : (
+                      <span className="text-[#F59E0B] text-xs flex items-center gap-1">Not Configured</span>
+                    )}
                   </Label>
                   <div className="relative">
-                    <Input type="password" defaultValue="sk_live_1234567890abcdef" className="font-mono text-xs pr-10" />
+                    <Input type="password" defaultValue={data.paystack_secret_key || ""} placeholder="sk_live_..." className="font-mono text-xs pr-10" />
                     <Button variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
                       <EyeOff className="w-4 h-4 text-slate-400" />
                     </Button>
@@ -72,15 +80,19 @@ export default function AdminApiProvidersPage() {
               <CardContent className="space-y-4 relative z-10">
                 <div className="space-y-2">
                   <Label>Public Key</Label>
-                  <Input type="text" defaultValue="FLWPUBK_TEST-*****************" readOnly className="bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
+                  <Input type="text" defaultValue={data.flutterwave_public_key || "FLWPUBK_TEST-*****************"} readOnly className="bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
                 </div>
                 <div className="space-y-2">
                   <Label className="flex justify-between">
                     Secret Key
-                    <span className="text-[#F59E0B] text-xs flex items-center gap-1">Test Mode</span>
+                    {data.flutterwave_secret_key ? (
+                      <span className="text-[#10B981] text-xs flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Connected</span>
+                    ) : (
+                      <span className="text-[#F59E0B] text-xs flex items-center gap-1">Not Configured</span>
+                    )}
                   </Label>
                   <div className="relative">
-                    <Input type="password" defaultValue="FLWSECK_TEST-123456789" className="font-mono text-xs pr-10" />
+                    <Input type="password" defaultValue={data.flutterwave_secret_key || ""} placeholder="FLWSECK_..." className="font-mono text-xs pr-10" />
                     <Button variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
                       <EyeOff className="w-4 h-4 text-slate-400" />
                     </Button>
@@ -116,10 +128,14 @@ export default function AdminApiProvidersPage() {
                 <div className="space-y-2">
                   <Label className="flex justify-between">
                     API Key
-                    <span className="text-[#10B981] text-xs flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Connected</span>
+                    {data.resend_api_key ? (
+                      <span className="text-[#10B981] text-xs flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Connected</span>
+                    ) : (
+                      <span className="text-[#F59E0B] text-xs flex items-center gap-1">Not Configured</span>
+                    )}
                   </Label>
                   <div className="relative">
-                    <Input type="password" defaultValue="re_123456789_abcdef" className="font-mono text-xs pr-10" />
+                    <Input type="password" defaultValue={data.resend_api_key || ""} placeholder="re_..." className="font-mono text-xs pr-10" />
                     <Button variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
                       <EyeOff className="w-4 h-4 text-slate-400" />
                     </Button>

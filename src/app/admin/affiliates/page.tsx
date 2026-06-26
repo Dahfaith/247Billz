@@ -12,15 +12,19 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 
+import { getAdminAffiliates } from '@/app/actions/admin'
+
 export const dynamic = 'force-dynamic'
 
-const MOCK_AFFILIATES = [
-  { id: 'aff_1', name: 'Tech Influencer', code: 'TECH20', referrals: 145, revenue: 14500, commission: 2900, status: 'active' },
-  { id: 'aff_2', name: 'Biz Consultant', code: 'GROWBIZ', referrals: 32, revenue: 3200, commission: 640, status: 'active' },
-  { id: 'aff_3', name: 'Software Review', code: 'REV247', referrals: 12, revenue: 1200, commission: 240, status: 'pending_payout' },
-]
+export default async function AdminAffiliatesPage() {
+  const { success, affiliates } = await getAdminAffiliates()
+  const displayAffiliates = affiliates || []
+  
+  const totalAffiliates = displayAffiliates.length
+  const totalReferrals = displayAffiliates.reduce((acc: number, curr: any) => acc + (curr.referrals_count || 0), 0)
+  const totalRevenue = displayAffiliates.reduce((acc: number, curr: any) => acc + Number(curr.revenue_generated || 0), 0)
+  const pendingCommissions = displayAffiliates.reduce((acc: number, curr: any) => acc + Number(curr.commission_due || 0), 0)
 
-export default function AdminAffiliatesPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -39,7 +43,7 @@ export default function AdminAffiliatesPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Total Affiliates</CardDescription>
-            <CardTitle className="text-3xl font-bold">42</CardTitle>
+            <CardTitle className="text-3xl font-bold">{totalAffiliates}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -51,11 +55,11 @@ export default function AdminAffiliatesPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Total Referrals</CardDescription>
-            <CardTitle className="text-3xl font-bold">1,024</CardTitle>
+            <CardTitle className="text-3xl font-bold">{totalReferrals}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-green-600">
-              <Activity className="w-4 h-4" /> +12% this month
+              <Activity className="w-4 h-4" /> Across all time
             </div>
           </CardContent>
         </Card>
@@ -63,7 +67,7 @@ export default function AdminAffiliatesPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Generated Revenue</CardDescription>
-            <CardTitle className="text-3xl font-bold">$42,500</CardTitle>
+            <CardTitle className="text-3xl font-bold">${totalRevenue.toLocaleString()}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-blue-600">
@@ -75,7 +79,7 @@ export default function AdminAffiliatesPage() {
         <Card className="bg-white dark:bg-[#0F172A]/80 border-[#E2E8F0] dark:border-slate-800 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Pending Commissions</CardDescription>
-            <CardTitle className="text-3xl font-bold text-amber-500">$8,500</CardTitle>
+            <CardTitle className="text-3xl font-bold text-amber-500">${pendingCommissions.toLocaleString()}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -115,17 +119,21 @@ export default function AdminAffiliatesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_AFFILIATES.map((aff) => (
+            {displayAffiliates.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-slate-500">No affiliates found.</TableCell>
+              </TableRow>
+            ) : displayAffiliates.map((aff: any) => (
               <TableRow key={aff.id} className="border-[#E2E8F0] dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <TableCell className="font-medium text-slate-900 dark:text-slate-100">{aff.name}</TableCell>
                 <TableCell>
                   <code className="text-xs font-bold text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30 px-2 py-1 rounded">
-                    {aff.code}
+                    {aff.promo_code}
                   </code>
                 </TableCell>
-                <TableCell className="text-right font-medium">{aff.referrals}</TableCell>
-                <TableCell className="text-right text-slate-600 dark:text-slate-400">${aff.revenue.toLocaleString()}</TableCell>
-                <TableCell className="text-right font-bold text-[#10B981]">${aff.commission.toLocaleString()}</TableCell>
+                <TableCell className="text-right font-medium">{aff.referrals_count}</TableCell>
+                <TableCell className="text-right text-slate-600 dark:text-slate-400">${Number(aff.revenue_generated).toLocaleString()}</TableCell>
+                <TableCell className="text-right font-bold text-[#10B981]">${Number(aff.commission_due).toLocaleString()}</TableCell>
                 <TableCell className="text-center">
                   <Badge variant={aff.status === 'active' ? 'default' : 'secondary'} 
                     className={
