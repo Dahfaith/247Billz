@@ -12,7 +12,7 @@ export default async function DashboardPage() {
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id')
+    .select('id, currency')
     .eq('owner_id', user.id)
     .limit(1)
     .single();
@@ -80,17 +80,19 @@ export default async function DashboardPage() {
   }
 
   // Build Recent Activity Feed
-  const recentActivity = [];
+  const recentActivity: any[] = [];
   
   // Add recent invoices
   invoices?.slice(0, 5).forEach(inv => {
     const invTotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+    const clientName = (inv.client as any)?.name || 'Client';
+    
     recentActivity.push({
       id: inv.id,
       type: inv.status === 'paid' ? 'Invoice Paid' : 'Invoice Created',
-      description: inv.status === 'paid' ? `${inv.client?.name} paid ${formatCurrency(invTotal, business.currency)}` : `${inv.invoice_number} sent to ${inv.client?.name}`,
+      description: inv.status === 'paid' ? `${clientName} paid ${formatCurrency(invTotal, business.currency)}` : `${inv.invoice_number} sent to ${clientName}`,
       date: new Date(inv.created_at),
-      initials: inv.client?.name ? inv.client.name.substring(0, 2).toUpperCase() : 'IN',
+      initials: clientName.substring(0, 2).toUpperCase(),
       color: inv.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-primary/10 text-primary'
     });
   });
