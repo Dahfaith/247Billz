@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 
 import { getAdminCMSPages } from '@/app/actions/admin'
 
@@ -33,9 +34,11 @@ export default async function AdminCMSPage() {
             Manage public pages, blog posts, and legal documents.
           </p>
         </div>
-        <Button className="gap-2 bg-[#F97316] hover:bg-[#EA580C] text-white">
-          <Plus className="w-4 h-4" /> New Page
-        </Button>
+        <Link href="/admin/cms/new">
+          <Button className="gap-2 bg-[#F97316] hover:bg-[#EA580C] text-white">
+            <Plus className="w-4 h-4" /> New Page
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -110,10 +113,10 @@ export default async function AdminCMSPage() {
             ) : displayPages.map((page: any) => (
               <TableRow key={page.id} className="border-[#E2E8F0] dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <TableCell className="font-medium text-slate-900 dark:text-slate-100">
-                  <div className="flex items-center gap-2">
+                  <Link href={`/admin/cms/${page.id}`} className="flex items-center gap-2 hover:text-[#F97316]">
                     <FileEdit className="w-4 h-4 text-slate-400" />
                     {page.title}
-                  </div>
+                  </Link>
                 </TableCell>
                 <TableCell className="text-slate-500 font-mono text-xs">{page.slug}</TableCell>
                 <TableCell className="text-center">

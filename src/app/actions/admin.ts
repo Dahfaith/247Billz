@@ -286,3 +286,85 @@ export async function getAdminTickets() {
     return { success: false, error: error.message }
   }
 }
+
+export async function getAdminTicketByNumber(ticketNumber: string) {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase
+      .from('support_tickets')
+      .select('*, businesses(name, email)')
+      .eq('ticket_number', ticketNumber)
+      .single()
+    if (error) throw error
+    return { success: true, ticket: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function replyToTicket(ticketId: string, reply: string) {
+  const supabase = getAdminClient()
+  try {
+    const { error } = await supabase
+      .from('support_tickets')
+      .update({
+        admin_reply: reply,
+        status: 'resolved'
+      })
+      .eq('id', ticketId)
+    if (error) throw error
+    revalidatePath('/admin/support')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getCMSPageById(id: string) {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase
+      .from('cms_pages')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return { success: true, page: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function createCMSPage(formData: FormData) {
+  const supabase = getAdminClient()
+  try {
+    const title = formData.get('title') as string
+    const slug = formData.get('slug') as string
+    const status = formData.get('status') as string
+    const content = formData.get('content') as string
+
+    const { error } = await supabase.from('cms_pages').insert([{ title, slug, status, content }])
+    if (error) throw error
+    revalidatePath('/admin/cms')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function updateCMSPage(id: string, formData: FormData) {
+  const supabase = getAdminClient()
+  try {
+    const title = formData.get('title') as string
+    const slug = formData.get('slug') as string
+    const status = formData.get('status') as string
+    const content = formData.get('content') as string
+
+    const { error } = await supabase.from('cms_pages').update({ title, slug, status, content }).eq('id', id)
+    if (error) throw error
+    revalidatePath('/admin/cms')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}

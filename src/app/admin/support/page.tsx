@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 
 import { getAdminTickets } from '@/app/actions/admin'
 
@@ -116,7 +117,10 @@ export default async function AdminSupportPage() {
             ) : displayTickets.map((ticket: any) => (
               <TableRow key={ticket.id} className="border-[#E2E8F0] dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <TableCell className="font-medium text-slate-500 dark:text-slate-400">
-                  {ticket.ticket_number}
+                  <Link href={`/admin/support/${ticket.ticket_number}`} className="text-[#F97316] hover:underline flex items-center gap-1">
+                    {ticket.ticket_number}
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
                 </TableCell>
                 <TableCell className="font-medium text-slate-900 dark:text-slate-100">
                   {ticket.subject}

@@ -25,7 +25,7 @@ export async function createSupportTicket(formData: FormData) {
     {
       ticket_number: ticketNumber,
       subject,
-      message,
+      description: message,
       priority,
       status: 'open',
       business_id: business ? business.id : null
