@@ -1,10 +1,16 @@
 "use server"
 
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { formatCurrency } from '@/lib/currency'
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+async function getResendInstance() {
+  const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const { data } = await supabaseAdmin.from('platform_settings').select('resend_api_key').single()
+  const apiKey = data?.resend_api_key || process.env.RESEND_API_KEY
+  return apiKey ? new Resend(apiKey) : null
+}
 
 export async function sendInvoiceEmail(invoiceId: string) {
   const supabase = await createClient()
@@ -72,6 +78,7 @@ export async function sendInvoiceEmail(invoiceId: string) {
     </div>
   `
 
+  const resend = await getResendInstance()
   if (!resend) {
     await new Promise(r => setTimeout(r, 1500))
     return { success: true, mocked: true }
@@ -140,6 +147,7 @@ export async function sendOverdueReminderEmail(invoice: any) {
     </div>
   `
 
+  const resend = await getResendInstance()
   if (!resend) {
     console.log("Mocking overdue reminder to", clientEmail)
     return { success: true, mocked: true }
@@ -231,6 +239,7 @@ export async function sendQuotationEmail(quotationId: string) {
     </div>
   `
 
+  const resend = await getResendInstance()
   if (!resend) {
     await new Promise(r => setTimeout(r, 1500))
     return { success: true, mocked: true }

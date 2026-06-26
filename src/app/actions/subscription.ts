@@ -3,7 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
+import { getPublicPlatformSettings } from '@/app/actions/settings'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'business') {
   const supabase = await createClient()
@@ -79,10 +80,18 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
     }
   }
 
+  const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const { data: settings } = await supabaseAdmin.from('platform_settings').select('flutterwave_secret_key').single()
+  const flwSecretKey = settings?.flutterwave_secret_key || process.env.FLW_SECRET_KEY
+
+  if (!flwSecretKey) {
+    throw new Error("Payment gateway is not properly configured")
+  }
+
   const response = await fetch('https://api.flutterwave.com/v3/payments', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${FLW_SECRET_KEY}`,
+      Authorization: `Bearer ${flwSecretKey}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)

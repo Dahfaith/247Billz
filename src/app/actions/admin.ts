@@ -134,14 +134,31 @@ export async function getAdminUsers() {
   const supabase = getAdminClient()
 
   try {
-    const { data, error } = await supabase
+    const { data: authData, error: authError } = await supabase.auth.admin.listUsers()
+    if (authError) throw authError
+
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .order('created_at', { ascending: false })
+      
+    if (profileError) throw profileError
 
-    if (error) throw error
+    // Merge auth data (email) into profiles
+    const users = authData.users.map(authUser => {
+      const profile = profiles.find(p => p.id === authUser.id) || {}
+      return {
+        ...profile,
+        id: authUser.id,
+        email: authUser.email,
+        created_at: authUser.created_at, // use auth creation date as fallback
+        ...authUser.user_metadata // include metadata like full_name
+      }
+    })
 
-    return { success: true, users: data }
+    // Sort by created_at descending
+    users.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+    return { success: true, users }
   } catch (error: any) {
     return { success: false, error: error.message }
   }
@@ -154,6 +171,22 @@ export async function toggleBusinessSuspension(businessId: string, currentStatus
     const { error } = await supabase
       .from('businesses')
       .update({ status: newStatus })
+      .eq('id', businessId)
+
+    if (error) throw error
+    revalidatePath('/admin/businesses')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function adminUpgradeBusinessPlan(businessId: string, newTier: string) {
+  const supabase = getAdminClient()
+  try {
+    const { error } = await supabase
+      .from('businesses')
+      .update({ subscription_tier: newTier })
       .eq('id', businessId)
 
     if (error) throw error

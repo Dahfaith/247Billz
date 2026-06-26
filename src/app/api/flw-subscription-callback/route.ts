@@ -1,22 +1,31 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
+import { getPublicPlatformSettings } from "@/app/actions/settings"
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const transactionId = searchParams.get('transaction_id')
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
+  const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const { data: settings } = await supabaseAdmin.from('platform_settings').select('flutterwave_secret_key').single()
+  const flwSecretKey = settings?.flutterwave_secret_key || process.env.FLW_SECRET_KEY
+
   if (!transactionId) {
     return NextResponse.redirect(`${baseUrl}/dashboard/billing?error=Payment+Cancelled`)
+  }
+
+  if (!flwSecretKey) {
+    return NextResponse.redirect(`${baseUrl}/dashboard/billing?error=Payment+Gateway+Not+Configured`)
   }
 
   try {
     const verifyRes = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${FLW_SECRET_KEY}`,
+        Authorization: `Bearer ${flwSecretKey}`,
         "Content-Type": "application/json",
       },
     })
