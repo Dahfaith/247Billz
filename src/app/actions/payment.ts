@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
 
@@ -100,4 +101,108 @@ export async function initiatePayment(invoiceToken: string) {
 
   // Redirect the client's browser to the Flutterwave secure checkout page!
   redirect(data.data.link)
+}
+
+export async function confirmCashPayment(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error('Not authenticated')
+  }
+
+  const invoiceId = formData.get('invoice_id') as string
+  const note = (formData.get('note') as string || '').trim()
+
+  if (!invoiceId) {
+    throw new Error('Invoice ID is required')
+  }
+
+  const { data: invoice, error: invoiceFetchError } = await supabase
+    .from('invoices')
+    .select('id, invoice_number, status, business_id, currency, secure_token, short_token')
+    .eq('id', invoiceId)
+    .single()
+
+  if (invoiceFetchError || !invoice) {
+    throw new Error(invoiceFetchError?.message || 'Invoice not found')
+  }
+
+  if (invoice.status === 'paid') {
+    throw new Error('This invoice is already marked paid')
+  }
+
+  const { data: items, error: itemsError } = await supabase
+    .from('invoice_items')
+    .select('quantity, price')
+    .eq('invoice_id', invoiceId)
+
+  if (itemsError) {
+    throw new Error(itemsError.message)
+  }
+
+  const total = items?.reduce((acc: number, item: any) => acc + (Number(item.quantity) * Number(item.price)), 0) || 0
+
+  const { error: invoiceUpdateError } = await supabase
+    .from('invoices')
+    .update({ status: 'paid' })
+    .eq('id', invoiceId)
+
+  if (invoiceUpdateError) {
+    throw new Error(invoiceUpdateError.message)
+  }
+
+  const { error: paymentInsertError } = await supabase
+    .from('payments')
+    .insert({
+      invoice_id: invoiceId,
+      amount: total,
+      payment_method: 'cash',
+      status: 'successful',
+      paid_at: new Date().toISOString(),
+      notes: note || null,
+      recorded_by: user.id,
+    })
+
+  if (paymentInsertError) {
+    throw new Error(paymentInsertError.message)
+  }
+
+  const auditMeta = {
+    invoice_id: invoice.id,
+    amount: total,
+    payment_method: 'cash',
+    note,
+  }
+
+  const { error: auditError } = await supabase
+    .from('audit_logs')
+    .insert({
+      business_id: invoice.business_id,
+      user_id: user.id,
+      event_type: 'payments',
+      message: `Cash payment recorded for invoice ${invoice.invoice_number}`,
+      meta: auditMeta,
+    })
+
+  if (auditError) {
+    console.error('Failed to write audit log:', auditError.message)
+  }
+
+  if (invoice.business_id) {
+    await supabase.from('notifications').insert({
+      business_id: invoice.business_id,
+      title: 'Invoice Paid (Cash)',
+      message: `Invoice ${invoice.invoice_number} was marked paid in cash.`,
+      type: 'success',
+    })
+  }
+
+  revalidatePath('/dashboard/invoices')
+  revalidatePath('/dashboard/payments')
+  if (invoice.short_token) {
+    revalidatePath(`/invoice/${invoice.short_token}`, 'page')
+  } else if (invoice.secure_token) {
+    revalidatePath(`/invoice/${invoice.secure_token}`, 'page')
+  }
 }

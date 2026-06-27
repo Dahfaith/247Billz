@@ -4,6 +4,7 @@ import { Plus, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/currency";
 import { SendEmailButton } from "@/components/send-email-button";
+import { CashPaymentModal } from "@/components/cash-payment-modal";
 
 export default async function InvoicesPage() {
   const supabase = await createClient();
@@ -113,45 +114,12 @@ export default async function InvoicesPage() {
                         <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
                         
                         {invoice.status !== 'paid' && (
-                          <form action={async () => {
-                            "use server";
-                            const { createClient } = await import("@/lib/supabase/server");
-                            const { revalidatePath } = await import("next/cache");
-                            const supabase = await createClient();
-
-                            // Recompute total from items to record accurate payment amount
-                            const { data: items } = await supabase.from('invoice_items').select('quantity, price').eq('invoice_id', invoice.id);
-                            const total = items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
-
-                            // 1) Mark invoice as paid
-                            await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoice.id);
-
-                            // 2) Insert a payment record for the cash payment
-                            await supabase.from('payments').insert({
-                              invoice_id: invoice.id,
-                              amount: total,
-                              payment_method: 'cash',
-                              status: 'successful',
-                              paid_at: new Date().toISOString()
-                            });
-
-                            // 3) Insert a business notification
-                            const { data: inv } = await supabase.from('invoices').select('invoice_number, business_id').eq('id', invoice.id).single()
-                            if (inv?.business_id) {
-                              await supabase.from('notifications').insert({
-                                business_id: inv.business_id,
-                                title: 'Invoice Paid (Cash)',
-                                message: `Invoice ${inv.invoice_number} was marked paid (cash). Amount: ${total}`,
-                                type: 'success'
-                              })
-                            }
-
-                            revalidatePath('/dashboard/invoices');
-                          }}>
-                            <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8">
-                              Mark Paid
-                            </Button>
-                          </form>
+                          <CashPaymentModal
+                            invoiceId={invoice.id}
+                            invoiceNumber={invoice.invoice_number}
+                            total={total}
+                            currency={invoice.currency}
+                          />
                         )}
                         
                         <Button asChild variant="ghost" size="sm" className="h-8 text-primary hover:text-primary/90 hover:bg-primary/10">
@@ -197,41 +165,12 @@ export default async function InvoicesPage() {
                           <SendEmailButton targetId={invoice.id} clientEmail={invoice.client?.email} type="invoice" />
                           
                           {invoice.status !== 'paid' && (
-                            <form action={async () => {
-                              "use server";
-                              const { createClient } = await import("@/lib/supabase/server");
-                              const { revalidatePath } = await import("next/cache");
-                              const supabase = await createClient();
-
-                              const { data: items } = await supabase.from('invoice_items').select('quantity, price').eq('invoice_id', invoice.id);
-                              const total = items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
-
-                              await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoice.id);
-
-                              await supabase.from('payments').insert({
-                                invoice_id: invoice.id,
-                                amount: total,
-                                payment_method: 'cash',
-                                status: 'successful',
-                                paid_at: new Date().toISOString()
-                              });
-
-                              const { data: inv } = await supabase.from('invoices').select('invoice_number, business_id').eq('id', invoice.id).single()
-                              if (inv?.business_id) {
-                                await supabase.from('notifications').insert({
-                                  business_id: inv.business_id,
-                                  title: 'Invoice Paid (Cash)',
-                                  message: `Invoice ${inv.invoice_number} was marked paid (cash). Amount: ${total}`,
-                                  type: 'success'
-                                })
-                              }
-
-                              revalidatePath('/dashboard/invoices');
-                            }}>
-                              <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-2 text-xs">
-                                Paid
-                              </Button>
-                            </form>
+                            <CashPaymentModal
+                              invoiceId={invoice.id}
+                              invoiceNumber={invoice.invoice_number}
+                              total={total}
+                              currency={invoice.currency}
+                            />
                           )}
                           
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
