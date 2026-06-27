@@ -86,8 +86,18 @@ export async function acceptQuotationAction(quotationId: string) {
 
   revalidatePath('/dashboard/quotations')
   // Revalidate the specific public quotation page
-  const { data: updated } = await supabase.from('quotations').select('secure_token').eq('id', quotationId).single()
+  const { data: updated } = await supabase.from('quotations').select('secure_token, business_id, quotation_number').eq('id', quotationId).single()
   if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
+
+  // Create a business notification for acceptance
+  if (updated?.business_id) {
+    await supabase.from('notifications').insert({
+      business_id: updated.business_id,
+      title: 'Quotation Accepted',
+      message: `Quotation ${updated.quotation_number} has been accepted.`,
+      type: 'success'
+    })
+  }
 }
 
 export async function declineQuotationAction(quotationId: string) {
@@ -103,8 +113,18 @@ export async function declineQuotationAction(quotationId: string) {
   }
 
   revalidatePath('/dashboard/quotations')
-  const { data: updated } = await supabase.from('quotations').select('secure_token').eq('id', quotationId).single()
+  const { data: updated } = await supabase.from('quotations').select('secure_token, business_id, quotation_number').eq('id', quotationId).single()
   if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
+
+  // Create a business notification for decline
+  if (updated?.business_id) {
+    await supabase.from('notifications').insert({
+      business_id: updated.business_id,
+      title: 'Quotation Declined',
+      message: `Quotation ${updated.quotation_number} has been declined.`,
+      type: 'warning'
+    })
+  }
 }
 
 export async function convertQuotationToInvoiceAction(quotationId: string) {
@@ -161,6 +181,16 @@ export async function convertQuotationToInvoiceAction(quotationId: string) {
 
   revalidatePath('/dashboard/quotations')
   revalidatePath('/dashboard/invoices')
+  // Notify the business that the quotation was converted into an invoice
+  const { data: updatedQuote } = await supabase.from('quotations').select('quotation_number, business_id').eq('id', quotationId).single()
+  if (updatedQuote?.business_id && invoice) {
+    await supabase.from('notifications').insert({
+      business_id: updatedQuote.business_id,
+      title: 'Quotation Converted',
+      message: `Quotation ${updatedQuote.quotation_number} was converted into Invoice ${invoice.invoice_number}.`,
+      type: 'info'
+    })
+  }
   return invoice.id
 }
 

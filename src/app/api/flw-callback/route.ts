@@ -37,11 +37,13 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
+    // Mark invoice paid
     await supabase
       .from('invoices')
       .update({ status: 'paid' })
       .eq('id', invoiceId)
 
+    // Insert payment record
     const { error: paymentError } = await supabase
       .from('payments')
       .insert({
@@ -50,6 +52,17 @@ export async function GET(request: NextRequest) {
         payment_method: 'flutterwave', 
         status: 'successful'
       })
+
+    // Create a notification for the business
+    const { data: invoice } = await supabase.from('invoices').select('invoice_number, business_id').eq('id', invoiceId).single()
+    if (invoice?.business_id) {
+      await supabase.from('notifications').insert({
+        business_id: invoice.business_id,
+        title: 'Invoice Paid',
+        message: `Invoice ${invoice.invoice_number} was paid (Flutterwave). Amount: ${amountPaid}`,
+        type: 'success'
+      })
+    }
 
     return NextResponse.redirect(`${baseUrl}/invoice/${secureToken}?payment=success`)
 

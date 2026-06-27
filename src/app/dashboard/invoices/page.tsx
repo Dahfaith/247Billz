@@ -131,6 +131,17 @@ export default async function InvoicesPage() {
                               paid_at: new Date().toISOString()
                             });
 
+                            // 3) Insert a business notification
+                            const { data: inv } = await supabase.from('invoices').select('invoice_number, business_id').eq('id', invoice.id).single()
+                            if (inv?.business_id) {
+                              await supabase.from('notifications').insert({
+                                business_id: inv.business_id,
+                                title: 'Invoice Paid (Cash)',
+                                message: `Invoice ${inv.invoice_number} was marked paid (cash). Amount: ${total}`,
+                                type: 'success'
+                              })
+                            }
+
                             revalidatePath('/dashboard/invoices');
                           }}>
                             <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8">
@@ -197,6 +208,16 @@ export default async function InvoicesPage() {
                                 status: 'successful',
                                 paid_at: new Date().toISOString()
                               });
+
+                              const { data: inv } = await supabase.from('invoices').select('invoice_number, business_id').eq('id', invoice.id).single()
+                              if (inv?.business_id) {
+                                await supabase.from('notifications').insert({
+                                  business_id: inv.business_id,
+                                  title: 'Invoice Paid (Cash)',
+                                  message: `Invoice ${inv.invoice_number} was marked paid (cash). Amount: ${total}`,
+                                  type: 'success'
+                                })
+                              }
 
                               revalidatePath('/dashboard/invoices');
                             }}>
