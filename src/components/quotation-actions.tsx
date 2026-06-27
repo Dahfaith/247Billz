@@ -2,12 +2,12 @@
 
 import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { acceptQuotationAction, declineQuotationAction, convertQuotationToInvoiceAction } from "@/app/actions/quotations"
-import { Check, X, Loader2, ArrowRight } from "lucide-react"
+import { acceptQuotationAction, declineQuotationAction } from "@/app/actions/quotations"
+import { Check, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
-export function QuotationActions({ quotationId, status, isOwner }: { quotationId: string, status: string, isOwner?: boolean }) {
+export function QuotationActions({ quotationToken, status }: { quotationToken: string, status: string }) {
   const [isPending, startTransition] = useTransition()
   const [currentStatus, setCurrentStatus] = useState(status)
   const router = useRouter()
@@ -24,7 +24,7 @@ export function QuotationActions({ quotationId, status, isOwner }: { quotationId
         onClick={() => {
           startTransition(async () => {
             try {
-              await declineQuotationAction(quotationId)
+              await declineQuotationAction(quotationToken)
               setCurrentStatus('declined')
               toast.success("Quotation declined.")
               router.refresh()
@@ -44,7 +44,7 @@ export function QuotationActions({ quotationId, status, isOwner }: { quotationId
         onClick={() => {
           startTransition(async () => {
             try {
-              await acceptQuotationAction(quotationId)
+              await acceptQuotationAction(quotationToken)
               setCurrentStatus('accepted')
               toast.success("Quotation accepted! Thank you.")
               router.refresh()

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { customAlphabet } from 'nanoid'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 export async function createQuotationAction(formData: FormData, items: any[]) {
@@ -84,27 +85,41 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
   return { token: quotation.secure_token, id: quotation.id }
 }
 
-export async function acceptQuotationAction(quotationId: string) {
-  const supabase = await createClient()
+export async function acceptQuotationAction(quotationToken: string) {
+  const adminUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const adminKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  const { error } = await supabase
+  if (!adminUrl || !adminKey) {
+    throw new Error('Supabase service role is not configured')
+  }
+
+  const supabaseAdmin = createSupabaseClient(adminUrl, adminKey)
+
+  const { error } = await supabaseAdmin
     .from('quotations')
     .update({ status: 'accepted' })
-    .eq('id', quotationId)
+    .or(`short_token.eq.${quotationToken},secure_token.eq.${quotationToken}`)
 
   if (error) {
     throw new Error(error.message)
   }
 
   revalidatePath('/dashboard/quotations')
-  // Revalidate the specific public quotation page (prefer short_token)
-  const { data: updated } = await supabase.from('quotations').select('secure_token, short_token, business_id, quotation_number').eq('id', quotationId).single()
-  if (updated?.short_token) revalidatePath(`/quotation/${updated.short_token}`, 'page')
-  else if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
+  const { data: updated } = await supabaseAdmin
+    .from('quotations')
+    .select('secure_token, short_token, business_id, quotation_number')
+    .or(`short_token.eq.${quotationToken},secure_token.eq.${quotationToken}`)
+    .single()
 
-  // Create a business notification for acceptance
-  if (updated?.business_id) {
-    await supabase.from('notifications').insert({
+  if (!updated) {
+    throw new Error('Quotation not found')
+  }
+
+  if (updated.short_token) revalidatePath(`/quotation/${updated.short_token}`)
+  else if (updated.secure_token) revalidatePath(`/quotation/${updated.secure_token}`)
+
+  if (updated.business_id) {
+    await supabaseAdmin.from('notifications').insert({
       business_id: updated.business_id,
       title: 'Quotation Accepted',
       message: `Quotation ${updated.quotation_number} has been accepted.`,
@@ -113,25 +128,41 @@ export async function acceptQuotationAction(quotationId: string) {
   }
 }
 
-export async function declineQuotationAction(quotationId: string) {
-  const supabase = await createClient()
+export async function declineQuotationAction(quotationToken: string) {
+  const adminUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const adminKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  const { error } = await supabase
+  if (!adminUrl || !adminKey) {
+    throw new Error('Supabase service role is not configured')
+  }
+
+  const supabaseAdmin = createSupabaseClient(adminUrl, adminKey)
+
+  const { error } = await supabaseAdmin
     .from('quotations')
     .update({ status: 'declined' })
-    .eq('id', quotationId)
+    .or(`short_token.eq.${quotationToken},secure_token.eq.${quotationToken}`)
 
   if (error) {
     throw new Error(error.message)
   }
 
   revalidatePath('/dashboard/quotations')
-  const { data: updated } = await supabase.from('quotations').select('secure_token, business_id, quotation_number').eq('id', quotationId).single()
-  if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
+  const { data: updated } = await supabaseAdmin
+    .from('quotations')
+    .select('secure_token, short_token, business_id, quotation_number')
+    .or(`short_token.eq.${quotationToken},secure_token.eq.${quotationToken}`)
+    .single()
 
-  // Create a business notification for decline
-  if (updated?.business_id) {
-    await supabase.from('notifications').insert({
+  if (!updated) {
+    throw new Error('Quotation not found')
+  }
+
+  if (updated.short_token) revalidatePath(`/quotation/${updated.short_token}`)
+  else if (updated.secure_token) revalidatePath(`/quotation/${updated.secure_token}`)
+
+  if (updated.business_id) {
+    await supabaseAdmin.from('notifications').insert({
       business_id: updated.business_id,
       title: 'Quotation Declined',
       message: `Quotation ${updated.quotation_number} has been declined.`,

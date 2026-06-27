@@ -185,9 +185,9 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
             </div>
           </div>
 
-          {/* Interactive Actions (Only visible if not converted) */}
+          {/* Interactive Actions (Only visible if draft) */}
           <div className="print:hidden">
-            <QuotationActions quotationId={quote.id} status={quote.status} isOwner={isOwner} />
+            <QuotationActions quotationToken={resolvedParams.token} status={quote.status} isOwner={isOwner} />
           </div>
 
         </div>
