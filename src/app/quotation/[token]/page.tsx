@@ -3,6 +3,8 @@ import { notFound } from "next/navigation"
 import { QuotationActions } from "@/components/quotation-actions"
 import PdfDownloadButton from "@/components/pdf-download-button"
 import ShareButton from "@/components/share-button"
+
+export const dynamic = 'force-dynamic'
 import { AutoCloseBanner } from "@/components/auto-close-banner"
 import { formatCurrency } from "@/lib/currency"
 
@@ -187,7 +189,7 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
 
           {/* Interactive Actions (Only visible if draft) */}
           <div className="print:hidden">
-            <QuotationActions quotationToken={resolvedParams.token} status={quote.status} isOwner={isOwner} />
+            <QuotationActions quotationToken={resolvedParams.token} status={quote.status} />
           </div>
 
         </div>
