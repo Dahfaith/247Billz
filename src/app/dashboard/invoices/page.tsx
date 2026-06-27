@@ -114,7 +114,23 @@ export default async function InvoicesPage() {
                             const { createClient } = await import("@/lib/supabase/server");
                             const { revalidatePath } = await import("next/cache");
                             const supabase = await createClient();
+
+                            // Recompute total from items to record accurate payment amount
+                            const { data: items } = await supabase.from('invoice_items').select('quantity, price').eq('invoice_id', invoice.id);
+                            const total = items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
+
+                            // 1) Mark invoice as paid
                             await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoice.id);
+
+                            // 2) Insert a payment record for the cash payment
+                            await supabase.from('payments').insert({
+                              invoice_id: invoice.id,
+                              amount: total,
+                              payment_method: 'cash',
+                              status: 'successful',
+                              paid_at: new Date().toISOString()
+                            });
+
                             revalidatePath('/dashboard/invoices');
                           }}>
                             <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8">
@@ -168,7 +184,20 @@ export default async function InvoicesPage() {
                               const { createClient } = await import("@/lib/supabase/server");
                               const { revalidatePath } = await import("next/cache");
                               const supabase = await createClient();
+
+                              const { data: items } = await supabase.from('invoice_items').select('quantity, price').eq('invoice_id', invoice.id);
+                              const total = items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
+
                               await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoice.id);
+
+                              await supabase.from('payments').insert({
+                                invoice_id: invoice.id,
+                                amount: total,
+                                payment_method: 'cash',
+                                status: 'successful',
+                                paid_at: new Date().toISOString()
+                              });
+
                               revalidatePath('/dashboard/invoices');
                             }}>
                               <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-2 text-xs">
