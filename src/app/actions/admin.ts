@@ -181,9 +181,25 @@ export async function toggleBusinessSuspension(businessId: string, currentStatus
   }
 }
 
-export async function adminUpgradeBusinessPlan(businessId: string, newTier: string) {
+export async function adminUpgradeBusinessPlan(businessId: string, newTier: 'starter' | 'pro' | 'business') {
   const supabase = getAdminClient()
   try {
+    const { data: business, error: businessError } = await supabase
+      .from('businesses')
+      .select('subscription_tier')
+      .eq('id', businessId)
+      .single()
+
+    if (businessError) throw businessError
+
+    const tierRanks = { free: 0, starter: 1, pro: 2, business: 3 }
+    const currentRank = tierRanks[(business?.subscription_tier as keyof typeof tierRanks) || 'free']
+    const targetRank = tierRanks[newTier]
+
+    if (targetRank < currentRank && newTier === 'free') {
+      throw new Error('Cannot downgrade a paid plan to free via this action.')
+    }
+
     const { error } = await supabase
       .from('businesses')
       .update({ subscription_tier: newTier })

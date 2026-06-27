@@ -129,12 +129,6 @@ export default async function AdminBusinessesPage() {
                               Upgrade to Business
                             </button>
                           </form>
-                          <form action={async () => { "use server"; await adminUpgradeBusinessPlan(business.id, 'free'); }}>
-                            <button type="submit" className="w-full flex items-center px-2 py-1.5 text-sm outline-none transition-colors rounded-sm text-slate-600 hover:bg-slate-100 focus:bg-slate-100">
-                              <ArrowUpCircle className="mr-2 h-4 w-4" />
-                              Downgrade to Free
-                            </button>
-                          </form>
                           <form action={async () => { "use server"; await toggleBusinessSuspension(business.id, business.status || 'active'); }}>
                             <button type="submit" className={`w-full flex items-center px-2 py-1.5 text-sm outline-none transition-colors rounded-sm ${business.status === 'suspended' ? 'text-green-600 focus:bg-slate-100 hover:bg-slate-100' : 'text-red-600 focus:bg-slate-100 hover:bg-slate-100'}`}>
                               {business.status === 'suspended' ? <CheckCircle2 className="mr-2 h-4 w-4" /> : <Ban className="mr-2 h-4 w-4" />}

@@ -47,9 +47,21 @@ export async function GET(request: NextRequest) {
 
     const { data: businessToUpdate, error: fetchError } = await supabase
       .from('businesses')
-      .select('referred_by')
+      .select('subscription_tier, referred_by')
       .eq('id', businessId)
       .single()
+
+    const tierRanks = { free: 0, starter: 1, pro: 2, business: 3 }
+    const currentRank = tierRanks[(businessToUpdate?.subscription_tier as keyof typeof tierRanks) || 'free']
+    const targetRank = tierRanks[upgradeToTier as keyof typeof tierRanks] ?? -1
+
+    if (targetRank < 0) {
+      return NextResponse.redirect(`${baseUrl}/dashboard/billing?error=Invalid+Subscription+Tier`)
+    }
+
+    if (targetRank < currentRank) {
+      return NextResponse.redirect(`${baseUrl}/dashboard/billing?error=Cannot+downgrade+subscription+via+this+payment`)
+    }
 
     const { error: updateError } = await supabase
       .from('businesses')

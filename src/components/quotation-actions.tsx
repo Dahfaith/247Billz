@@ -9,11 +9,10 @@ import { useRouter } from "next/navigation"
 
 export function QuotationActions({ quotationId, status, isOwner }: { quotationId: string, status: string, isOwner?: boolean }) {
   const [isPending, startTransition] = useTransition()
+  const [currentStatus, setCurrentStatus] = useState(status)
   const router = useRouter()
 
-
-
-  if (status !== 'draft') return null;
+  if (currentStatus !== 'draft') return null;
 
   return (
     <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8 pt-8 border-t border-border">
@@ -26,7 +25,9 @@ export function QuotationActions({ quotationId, status, isOwner }: { quotationId
           startTransition(async () => {
             try {
               await declineQuotationAction(quotationId)
+              setCurrentStatus('declined')
               toast.success("Quotation declined.")
+              router.refresh()
             } catch (error: any) {
               toast.error("Failed to decline quotation")
             }
@@ -44,7 +45,9 @@ export function QuotationActions({ quotationId, status, isOwner }: { quotationId
           startTransition(async () => {
             try {
               await acceptQuotationAction(quotationId)
+              setCurrentStatus('accepted')
               toast.success("Quotation accepted! Thank you.")
+              router.refresh()
             } catch (error: any) {
               toast.error("Failed to accept quotation")
             }
