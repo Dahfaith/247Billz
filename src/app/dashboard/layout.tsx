@@ -10,6 +10,7 @@ import { UpgradeModal } from "@/components/upgrade-modal";
 import { Suspense } from "react";
 import { getPublicPlatformSettings } from "@/app/actions/settings";
 import { HelpCircle, BookOpen } from "lucide-react";
+import { NotificationDropdown } from "@/components/notification-dropdown";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -128,7 +129,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/clients"><Users /> <span>Clients</span></Link></SidebarMenuButton></SidebarMenuItem>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/payments"><CreditCard /> <span>Payments</span></Link></SidebarMenuButton></SidebarMenuItem>
                   <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/reports"><BarChart /> <span>Reports</span></Link></SidebarMenuButton></SidebarMenuItem>
-                  <SidebarMenuItem><SidebarMenuButton asChild><Link href="/dashboard/notifications"><Bell /> <span>Notifications</span></Link></SidebarMenuButton></SidebarMenuItem>
+
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -191,6 +192,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             percent={percent} 
             tier={tier}
           />
+          <div className="hidden md:flex h-14 items-center justify-end px-8 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 w-full">
+            <NotificationDropdown />
+          </div>
           {children}
           <Suspense fallback={null}>
             <UpgradeModal />

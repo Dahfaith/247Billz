@@ -7,6 +7,7 @@ import { PanelLeft, LayoutDashboard, FileText, Receipt, Users, CreditCard, BarCh
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { logout } from "@/app/actions/auth";
+import { NotificationDropdown } from "./notification-dropdown";
 
 export function MobileHeader({ 
   businessName = "My Business", 
@@ -67,9 +68,7 @@ export function MobileHeader({
                 <Link href="/dashboard/reports" onClick={() => setOpen(false)} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-sidebar-accent transition-colors">
                   <BarChart className="w-4 h-4" /> <span>Reports</span>
                 </Link>
-                <Link href="/dashboard/notifications" onClick={() => setOpen(false)} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-sidebar-accent transition-colors">
-                  <Bell className="w-4 h-4" /> <span>Notifications</span>
-                </Link>
+
                 <Link href="/dashboard/support" onClick={() => setOpen(false)} className="flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-sidebar-accent transition-colors">
                   <HelpCircle className="w-4 h-4" /> <span>Support Helpdesk</span>
                 </Link>
@@ -118,10 +117,7 @@ export function MobileHeader({
       </Sheet>
       <div className="flex flex-1 items-center justify-between ml-3">
         <span className="font-bold text-lg text-primary tracking-tight">247Billz</span>
-        <Link href="/dashboard/notifications" className="relative p-2 text-muted-foreground hover:text-foreground">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-card"></span>
-        </Link>
+        <NotificationDropdown />
       </div>
     </div>
   );

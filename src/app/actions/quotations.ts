@@ -67,7 +67,7 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
   }
 
   revalidatePath('/dashboard/quotations')
-  return quotation.id
+  return { token: quotation.secure_token, id: quotation.id }
 }
 
 export async function acceptQuotationAction(quotationId: string) {
