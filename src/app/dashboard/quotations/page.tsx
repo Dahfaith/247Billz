@@ -130,7 +130,7 @@ export default async function QuotationsPage() {
                           </Button>
                         )}
                         <Button asChild variant="ghost" size="sm" className="h-8 text-primary hover:text-primary/90 hover:bg-primary/10">
-                          <Link href={`/quotation/${quote.secure_token}`} target="_blank">
+                          <Link href={`/quotation/${quote.short_token || quote.secure_token}`} target="_blank">
                             View
                           </Link>
                         </Button>
@@ -190,7 +190,7 @@ export default async function QuotationsPage() {
                             </Button>
                           )}
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
-                             <Link href={`/quotation/${quote.secure_token}`} target="_blank">View Quote</Link>
+                             <Link href={`/quotation/${quote.short_token || quote.secure_token}`} target="_blank">View Quote</Link>
                           </Button>
                         </div>
                      </div>

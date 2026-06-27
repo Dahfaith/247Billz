@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
     }
 
     const invoiceId = verifyData.data.meta?.invoice_id
-    const secureToken = verifyData.data.meta?.secure_token
+    // Prefer short_token if present in meta, else fallback to secure_token
+    const shortToken = verifyData.data.meta?.short_token
+    const secureToken = shortToken || verifyData.data.meta?.secure_token
     const amountPaid = verifyData.data.amount
 
     if (!invoiceId) {

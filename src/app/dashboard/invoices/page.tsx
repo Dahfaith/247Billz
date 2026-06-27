@@ -151,7 +151,7 @@ export default async function InvoicesPage() {
                         )}
                         
                         <Button asChild variant="ghost" size="sm" className="h-8 text-primary hover:text-primary/90 hover:bg-primary/10">
-                          <Link href={`/invoice/${invoice.secure_token}`} target="_blank">
+                          <Link href={`/invoice/${invoice.short_token || invoice.secure_token}`} target="_blank">
                             View
                           </Link>
                         </Button>
@@ -228,7 +228,7 @@ export default async function InvoicesPage() {
                           )}
                           
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
-                             <Link href={`/invoice/${invoice.secure_token}`} target="_blank">View</Link>
+                             <Link href={`/invoice/${invoice.short_token || invoice.secure_token}`} target="_blank">View</Link>
                           </Button>
                         </div>
                      </div>

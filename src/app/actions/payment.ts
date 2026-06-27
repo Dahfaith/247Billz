@@ -9,15 +9,29 @@ export async function initiatePayment(invoiceToken: string) {
   const supabase = await createClient()
 
   // 1. Fetch Invoice Details
-  const { data: invoice } = await supabase
+  // Try short_token first for compatibility with new short links
+  let { data: invoice } = await supabase
     .from('invoices')
     .select(`
       *,
       business:businesses(*),
       client:clients(*)
     `)
-    .eq('secure_token', invoiceToken)
-    .single()
+    .eq('short_token', invoiceToken)
+    .maybeSingle()
+
+  if (!invoice) {
+    const res = await supabase
+      .from('invoices')
+      .select(`
+        *,
+        business:businesses(*),
+        client:clients(*)
+      `)
+      .eq('secure_token', invoiceToken)
+      .single()
+    invoice = res.data
+  }
 
   if (!invoice) throw new Error("Invoice not found")
   if (invoice.status === 'paid') throw new Error("This invoice has already been paid")

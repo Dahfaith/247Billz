@@ -44,7 +44,7 @@ export async function sendInvoiceEmail(invoiceId: string) {
   const invoiceTotal = invoice.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0
   
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const invoiceUrl = `${baseUrl}/invoice/${invoice.secure_token}`
+  const invoiceUrl = `${baseUrl}/invoice/${invoice.short_token || invoice.secure_token}`
 
   const htmlContent = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -205,7 +205,7 @@ export async function sendQuotationEmail(quotationId: string) {
   const quoteTotal = quote.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0
   
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const quoteUrl = `${baseUrl}/quotation/${quote.secure_token}`
+  const quoteUrl = `${baseUrl}/quotation/${quote.short_token || quote.secure_token}`
 
   const htmlContent = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { customAlphabet } from 'nanoid'
 
 export async function createInvoice(formData: FormData) {
   const supabase = await createClient()
@@ -115,6 +116,10 @@ export async function createInvoice(formData: FormData) {
   const invoiceNumber = `INV-${randomSuffix}`
 
   // 6. Insert Invoice
+  // Generate short token for public sharing
+  const nano = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)
+  const short_token = nano()
+
   const { data: invoice, error: invoiceError } = await supabase
     .from('invoices')
     .insert({
@@ -124,7 +129,8 @@ export async function createInvoice(formData: FormData) {
       issue_date: issueDate,
       due_date: dueDate,
       currency: currency,
-      status: 'pending' // Default status
+      status: 'pending', // Default status
+      short_token
     })
     .select()
     .single()
@@ -145,6 +151,6 @@ export async function createInvoice(formData: FormData) {
 
   if (itemsError) throw new Error(`Failed to create invoice items: ${itemsError.message}`)
 
-  // 8. Redirect to the public invoice view using the secure token
-  redirect(`/invoice/${invoice.secure_token}`)
+  // 8. Redirect to the public invoice view using the short token if available (fallback to secure_token)
+  redirect(`/invoice/${invoice.short_token || invoice.secure_token}`)
 }

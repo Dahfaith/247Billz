@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import { QuotationActions } from "@/components/quotation-actions"
 import PdfDownloadButton from "@/components/pdf-download-button"
+import ShareButton from "@/components/share-button"
 import { AutoCloseBanner } from "@/components/auto-close-banner"
 import { formatCurrency } from "@/lib/currency"
 
@@ -9,8 +10,8 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
   const resolvedParams = await params
   const supabase = await createClient()
 
-  // Find the quotation using the secure token
-  const { data: quote } = await supabase
+  // Find the quotation using short_token first, fallback to secure_token
+  let { data: quote } = await supabase
     .from('quotations')
     .select(`
       *,
@@ -18,8 +19,22 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
       client:clients(*),
       items:quotation_items(*)
     `)
-    .eq('secure_token', resolvedParams.token)
-    .single()
+    .eq('short_token', resolvedParams.token)
+    .maybeSingle()
+
+  if (!quote) {
+    const res = await supabase
+      .from('quotations')
+      .select(`
+        *,
+        business:businesses(*),
+        client:clients(*),
+        items:quotation_items(*)
+      `)
+      .eq('secure_token', resolvedParams.token)
+      .single()
+    quote = res.data
+  }
 
   if (!quote) {
     notFound()
@@ -50,7 +65,10 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
       )}
 
       <div className="w-full max-w-4xl flex justify-end mb-4 print:hidden">
-        <PdfDownloadButton targetId="quotation-document" fileName={`Quotation_${quote.quotation_number}`} />
+        <div className="flex gap-2">
+          <PdfDownloadButton targetId="quotation-document" fileName={`Quotation_${quote.quotation_number}`} />
+          <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/quotation/${quote.secure_token}`} />
+        </div>
       </div>
 
       <div id="quotation-document" className="w-full max-w-4xl bg-card border border-border shadow-xl rounded-2xl overflow-hidden print:shadow-none print:border-none">

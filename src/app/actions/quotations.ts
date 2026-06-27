@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from '@/lib/supabase/server'
+import { customAlphabet } from 'nanoid'
 import { revalidatePath } from 'next/cache'
 
 export async function createQuotationAction(formData: FormData, items: any[]) {
@@ -33,6 +34,10 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
   const randomSuffix = Math.floor(100000 + Math.random() * 900000);
   const quotation_number = `EST-${randomSuffix}`;
 
+  // Generate a short shareable token (10 chars)
+  const nano = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)
+  const short_token = nano()
+
   const { data: quotation, error } = await supabase
     .from('quotations')
     .insert({
@@ -42,6 +47,7 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
       issue_date,
       valid_until,
       notes,
+      short_token
     })
     .select('*')
     .single()
@@ -68,6 +74,12 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
 
   revalidatePath('/dashboard/quotations')
   // Ensure the public quotation page is revalidated so the new page is available immediately
+  // Prefer returning short_token for shorter public links; fallback to secure_token
+  if (quotation.short_token) {
+    revalidatePath(`/quotation/${quotation.short_token}`, 'page')
+    return { token: quotation.short_token, id: quotation.id }
+  }
+
   revalidatePath(`/quotation/${quotation.secure_token}`, 'page')
   return { token: quotation.secure_token, id: quotation.id }
 }
@@ -85,9 +97,10 @@ export async function acceptQuotationAction(quotationId: string) {
   }
 
   revalidatePath('/dashboard/quotations')
-  // Revalidate the specific public quotation page
-  const { data: updated } = await supabase.from('quotations').select('secure_token, business_id, quotation_number').eq('id', quotationId).single()
-  if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
+  // Revalidate the specific public quotation page (prefer short_token)
+  const { data: updated } = await supabase.from('quotations').select('secure_token, short_token, business_id, quotation_number').eq('id', quotationId).single()
+  if (updated?.short_token) revalidatePath(`/quotation/${updated.short_token}`, 'page')
+  else if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
 
   // Create a business notification for acceptance
   if (updated?.business_id) {
@@ -262,7 +275,9 @@ export async function updateQuotationAction(quotationId: string, formData: FormD
   }
 
   revalidatePath('/dashboard/quotations')
-  revalidatePath(`/quotation/${quotation.secure_token}`, 'page')
+  // Also revalidate the public page for the updated quotation after edits
+  if (quotation.short_token) revalidatePath(`/quotation/${quotation.short_token}`, 'page')
+  else if (quotation.secure_token) revalidatePath(`/quotation/${quotation.secure_token}`, 'page')
   return true
 }
 

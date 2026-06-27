@@ -5,6 +5,7 @@ import { initiatePayment } from "@/app/actions/payment";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import PdfDownloadButton from "@/components/pdf-download-button";
+import ShareButton from "@/components/share-button";
 import { formatCurrency } from "@/lib/currency";
 
 export default async function PublicInvoicePage({ 
@@ -20,16 +21,29 @@ export default async function PublicInvoicePage({
   const isSuccess = resolvedSearch.payment === 'success';
   const supabase = await createClient();
 
-  // 1. Fetch Invoice
-  const { data: invoice } = await supabase
+  // 1. Fetch Invoice by short_token first, fallback to secure_token
+  let { data: invoice } = await supabase
     .from('invoices')
     .select(`
       *,
       business:businesses(*),
       client:clients(*)
     `)
-    .eq('secure_token', token)
-    .single();
+    .eq('short_token', token)
+    .maybeSingle();
+
+  if (!invoice) {
+    const res = await supabase
+      .from('invoices')
+      .select(`
+        *,
+        business:businesses(*),
+        client:clients(*)
+      `)
+      .eq('secure_token', token)
+      .single();
+    invoice = res.data
+  }
 
   if (!invoice) {
     notFound();
@@ -57,7 +71,10 @@ export default async function PublicInvoicePage({
       <PaymentSuccessBanner isSuccess={isSuccess} />
       
       <div className="w-full max-w-4xl flex justify-end mb-4 print:hidden">
-        <PdfDownloadButton targetId="invoice-document" fileName={`Invoice_${invoice.invoice_number}`} />
+        <div className="flex gap-2">
+          <PdfDownloadButton targetId="invoice-document" fileName={`Invoice_${invoice.invoice_number}`} />
+          <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/invoice/${token}`} />
+        </div>
       </div>
 
       {/* The Invoice Paper */}

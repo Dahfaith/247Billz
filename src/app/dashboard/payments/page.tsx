@@ -96,9 +96,9 @@ export default async function PaymentsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        {payment.invoice?.secure_token && (
+                        {(payment.invoice?.short_token || payment.invoice?.secure_token) && (
                           <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">
-                            <Link href={`/invoice/${payment.invoice.secure_token}`} target="_blank">
+                            <Link href={`/invoice/${payment.invoice.short_token || payment.invoice.secure_token}`} target="_blank">
                               View Invoice
                             </Link>
                           </Button>
@@ -132,10 +132,10 @@ export default async function PaymentsPage() {
                         <div className="text-xs text-slate-500">
                           {new Date(payment.created_at).toISOString().split('T')[0]} • <span className="capitalize">{payment.payment_method?.replace('_', ' ') || "N/A"}</span>
                         </div>
-                        {payment.invoice?.secure_token && (
+                        {(payment.invoice?.short_token || payment.invoice?.secure_token) && (
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
-                             <Link href={`/invoice/${payment.invoice.secure_token}`} target="_blank">View</Link>
-                          </Button>
+                             <Link href={`/invoice/${payment.invoice.short_token || payment.invoice.secure_token}`} target="_blank">View</Link>
+                           </Button>
                         )}
                      </div>
                   </div>
