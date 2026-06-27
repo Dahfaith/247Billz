@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { MessageSquare, Clock, CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,8 +38,46 @@ export default async function SupportPage() {
               <CardTitle className="text-xl text-[#0F172A]">Your Ticket History</CardTitle>
               <CardDescription>Track the status of your recent requests.</CardDescription>
             </CardHeader>
-            <div className="p-0 overflow-x-auto">
-              <Table className="min-w-[500px]">
+            <div className="p-4 sm:hidden">
+              {tickets.length === 0 ? (
+                <div className="text-center py-8 text-[#94A3B8]">
+                  You haven't opened any support tickets yet.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {tickets.map((ticket: any) => (
+                    <div key={ticket.id} className="rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-[#64748B]">Ticket</p>
+                            <p className="text-base font-semibold text-[#0F172A]">{ticket.ticket_number}</p>
+                          </div>
+                          <Link href={`/dashboard/support/${ticket.ticket_number}`} className="text-sm font-medium text-primary hover:underline">
+                            View
+                          </Link>
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#0F172A]">{ticket.subject}</p>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[#64748B]">
+                          <span className="inline-flex items-center gap-1">
+                            {ticket.status === 'open' && <MessageSquare className="w-4 h-4" />}
+                            {ticket.status === 'in_progress' && <Clock className="w-4 h-4" />}
+                            {ticket.status === 'resolved' && <CheckCircle2 className="w-4 h-4" />}
+                            {ticket.status.replace('_', ' ')}
+                          </span>
+                          <span>{new Date(ticket.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="hidden sm:block p-0 overflow-x-auto">
+              <Table className="min-w-full">
                 <TableHeader className="bg-[#F8FAFC]">
                   <TableRow className="border-[#E2E8F0] hover:bg-transparent">
                     <TableHead className="font-semibold text-[#64748B] whitespace-nowrap">Ticket ID</TableHead>
@@ -80,9 +119,9 @@ export default async function SupportPage() {
                         {new Date(ticket.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right whitespace-nowrap">
-                        <a href={`/dashboard/support/${ticket.ticket_number}`} className="text-sm font-medium text-primary hover:underline">
+                        <Link href={`/dashboard/support/${ticket.ticket_number}`} className="text-sm font-medium text-primary hover:underline">
                           View
-                        </a>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}

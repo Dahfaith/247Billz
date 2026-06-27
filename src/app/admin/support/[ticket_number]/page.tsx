@@ -58,14 +58,14 @@ export default async function AdminTicketReplyPage({ params }: { params: Promise
             <h3 className="text-lg font-semibold text-[#0F172A] dark:text-white">Write a Reply</h3>
             <Textarea 
               name="reply" 
-              placeholder="Type your response here... This will mark the ticket as resolved."
+              placeholder="Type your response here... This will add a response and keep the ticket active."
               className="min-h-[150px] bg-[#F8FAFC] dark:bg-[#1E293B]"
               required
             />
             <div className="flex justify-end">
               <Button type="submit" className="bg-[#F97316] hover:bg-[#EA580C] text-white">
                 <Send className="w-4 h-4 mr-2" />
-                Send Reply & Resolve
+                Send Reply
               </Button>
             </div>
           </form>

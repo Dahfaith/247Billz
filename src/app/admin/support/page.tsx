@@ -98,64 +98,99 @@ export default async function AdminSupportPage() {
           </div>
         </div>
         
-        <Table>
-          <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
-            <TableRow className="border-[#E2E8F0] dark:border-slate-800 hover:bg-transparent">
-              <TableHead className="font-semibold text-slate-600 dark:text-slate-300">Ticket</TableHead>
-              <TableHead className="font-semibold text-slate-600 dark:text-slate-300">Subject</TableHead>
-              <TableHead className="font-semibold text-slate-600 dark:text-slate-300">Business/User</TableHead>
-              <TableHead className="font-semibold text-slate-600 dark:text-slate-300 text-center">Priority</TableHead>
-              <TableHead className="font-semibold text-slate-600 dark:text-slate-300 text-center">Status</TableHead>
-              <TableHead className="font-semibold text-slate-600 dark:text-slate-300 text-right">Time</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {displayTickets.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-slate-500">No support tickets found.</TableCell>
+        <div className="space-y-4 p-4 sm:hidden">
+          {displayTickets.length === 0 ? (
+            <div className="text-center text-slate-500">No support tickets found.</div>
+          ) : (
+            displayTickets.map((ticket: any) => (
+              <div key={ticket.id} className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Ticket</p>
+                      <Link href={`/admin/support/${ticket.ticket_number}`} className="text-base font-semibold text-[#F97316] hover:underline">
+                        {ticket.ticket_number}
+                      </Link>
+                    </div>
+                    <Badge variant="outline"
+                      className={
+                        ticket.status === 'open' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                        ticket.status === 'in_progress' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                        'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      }>
+                      {ticket.status.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{ticket.subject}</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm text-slate-500 dark:text-slate-400">
+                    <div>{ticket.businesses?.name || 'Unknown'}</div>
+                    <div className="text-right">{new Date(ticket.created_at).toLocaleDateString()}</div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="hidden sm:block">
+          <Table>
+            <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+              <TableRow className="border-[#E2E8F0] dark:border-slate-800 hover:bg-transparent">
+                <TableHead className="font-semibold text-slate-600 dark:text-slate-300">Ticket</TableHead>
+                <TableHead className="font-semibold text-slate-600 dark:text-slate-300">Subject</TableHead>
+                <TableHead className="font-semibold text-slate-600 dark:text-slate-300">Business/User</TableHead>
+                <TableHead className="font-semibold text-slate-600 dark:text-slate-300 text-center">Priority</TableHead>
+                <TableHead className="font-semibold text-slate-600 dark:text-slate-300 text-center">Status</TableHead>
+                <TableHead className="font-semibold text-slate-600 dark:text-slate-300 text-right">Time</TableHead>
               </TableRow>
-            ) : displayTickets.map((ticket: any) => (
-              <TableRow key={ticket.id} className="border-[#E2E8F0] dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                <TableCell className="font-medium text-slate-500 dark:text-slate-400">
-                  <Link href={`/admin/support/${ticket.ticket_number}`} className="text-[#F97316] hover:underline flex items-center gap-1">
-                    {ticket.ticket_number}
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </TableCell>
-                <TableCell className="font-medium text-slate-900 dark:text-slate-100">
-                  {ticket.subject}
-                </TableCell>
-                <TableCell className="text-slate-600 dark:text-slate-400">
-                  {ticket.businesses?.name || 'Unknown'}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant="outline"
-                    className={
-                      ticket.priority === 'critical' ? 'border-red-500 text-red-500' :
-                      ticket.priority === 'high' ? 'border-orange-500 text-orange-500' :
-                      ticket.priority === 'medium' ? 'border-blue-500 text-blue-500' :
-                      'border-slate-500 text-slate-500'
-                    }>
-                    {ticket.priority.toUpperCase()}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant={ticket.status === 'open' ? 'default' : 'secondary'} 
-                    className={
-                      ticket.status === 'open' ? 'bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400' :
-                      ticket.status === 'in_progress' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400' :
-                      'bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400'
-                    }>
-                    {ticket.status.replace('_', ' ').toUpperCase()}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right text-sm text-slate-500">
-                  {new Date(ticket.created_at).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {displayTickets.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-slate-500">No support tickets found.</TableCell>
+                </TableRow>
+              ) : displayTickets.map((ticket: any) => (
+                <TableRow key={ticket.id} className="border-[#E2E8F0] dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <TableCell className="font-medium text-slate-500 dark:text-slate-400">
+                    <Link href={`/admin/support/${ticket.ticket_number}`} className="text-[#F97316] hover:underline flex items-center gap-1">
+                      {ticket.ticket_number}
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </TableCell>
+                  <TableCell className="font-medium text-slate-900 dark:text-slate-100">
+                    {ticket.subject}
+                  </TableCell>
+                  <TableCell className="text-slate-600 dark:text-slate-400">
+                    {ticket.businesses?.name || 'Unknown'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="outline"
+                      className={
+                        ticket.priority === 'critical' ? 'border-red-500 text-red-500' :
+                        ticket.priority === 'high' ? 'border-orange-500 text-orange-500' :
+                        ticket.priority === 'medium' ? 'border-blue-500 text-blue-500' :
+                        'border-slate-500 text-slate-500'
+                      }>
+                      {ticket.priority.toUpperCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={ticket.status === 'open' ? 'default' : 'secondary'} 
+                      className={
+                        ticket.status === 'open' ? 'bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400' :
+                        ticket.status === 'in_progress' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400' :
+                        'bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400'
+                      }>
+                      {ticket.status.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right text-sm text-slate-500">
+                    {new Date(ticket.created_at).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
     </div>
   )

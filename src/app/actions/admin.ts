@@ -401,7 +401,7 @@ export async function replyToTicket(ticketId: string, reply: string) {
       .from('support_tickets')
       .update({
         admin_reply: reply,
-        status: 'resolved'
+        status: 'in_progress'
       })
       .eq('id', ticketId)
     if (error) throw error
