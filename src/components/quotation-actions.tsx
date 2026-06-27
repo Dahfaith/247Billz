@@ -48,6 +48,9 @@ export function QuotationActions({ quotationToken, status }: { quotationToken: s
               setCurrentStatus('accepted')
               toast.success("Quotation accepted! Thank you.")
               router.refresh()
+              if (typeof window !== 'undefined') {
+                window.location.reload()
+              }
             } catch (error: any) {
               toast.error("Failed to accept quotation")
             }
