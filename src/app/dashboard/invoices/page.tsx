@@ -25,14 +25,15 @@ export default async function InvoicesPage() {
 
   let invoices = [];
   
-  if (business) {
-    // Fetch invoices with client info
+    if (business) {
+    // Fetch invoices with client info and recent payments
     const { data } = await supabase
       .from('invoices')
       .select(`
         *,
         client:clients(name, email),
-        items:invoice_items(quantity, price)
+        items:invoice_items(quantity, price),
+        payments:payments(amount, payment_method, status, paid_at)
       `)
       .eq('business_id', business.id)
       .order('created_at', { ascending: false });
@@ -89,6 +90,9 @@ export default async function InvoicesPage() {
               <tbody className="divide-y divide-border">
                 {invoices.map((invoice: any) => {
                   const total = invoice.items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
+                  const paymentMethod = invoice.payments?.[0]?.payment_method
+                  const pmLabel = paymentMethod ? (String(paymentMethod).replace('_', ' ')) : null
+                  const statusLabel = invoice.status === 'paid' && pmLabel ? `${invoice.status} (${pmLabel.charAt(0).toUpperCase() + pmLabel.slice(1)})` : invoice.status
                   
                   return (
                     <tr key={invoice.id} className="hover:bg-muted/50 transition-colors">
@@ -102,7 +106,7 @@ export default async function InvoicesPage() {
                       <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(total, invoice.currency)}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                          {invoice.status}
+                          {statusLabel}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right flex justify-end gap-2 items-center">
@@ -167,6 +171,9 @@ export default async function InvoicesPage() {
           <div className="block sm:hidden divide-y divide-border">
             {invoices.map((invoice: any) => {
                const total = invoice.items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
+               const paymentMethod = invoice.payments?.[0]?.payment_method
+               const pmLabel = paymentMethod ? (String(paymentMethod).replace('_', ' ')) : null
+               const statusLabel = invoice.status === 'paid' && pmLabel ? `${invoice.status} (${pmLabel.charAt(0).toUpperCase() + pmLabel.slice(1)})` : invoice.status
                return (
                   <div key={invoice.id} className="p-4 space-y-3 hover:bg-muted/50 transition-colors">
                      <div className="flex justify-between items-start">
@@ -177,7 +184,7 @@ export default async function InvoicesPage() {
                         <div className="text-right">
                            <div className="font-bold text-slate-900">{formatCurrency(total, invoice.currency)}</div>
                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mt-1 ${invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                             {invoice.status}
+                             {statusLabel}
                            </span>
                         </div>
                      </div>
