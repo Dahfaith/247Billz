@@ -46,6 +46,7 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
     startTransition(async () => {
       try {
         const formData = new FormData();
+        formData.append("client_id", selectedClientId);
         formData.append("clientName", clientName);
         formData.append("clientEmail", clientEmail);
         formData.append("issueDate", issueDate);
@@ -53,13 +54,16 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
         formData.append("currency", currency);
         formData.append("items", JSON.stringify(items));
         
-        await createInvoice(formData);
-      } catch (error: any) {
-        if (error.message?.includes("limit reached")) {
-          router.push("?upgrade=true");
-        } else {
-          toast.error(error.message || "Failed to save invoice");
+        const result = await createInvoice(formData);
+        if (result?.error) {
+          if (result.error.includes("limit reached")) {
+            router.push("?upgrade=true");
+          } else {
+            toast.error(result.error);
+          }
         }
+      } catch (error: any) {
+        toast.error("An unexpected error occurred.");
       }
     });
   };

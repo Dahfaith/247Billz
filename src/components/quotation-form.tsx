@@ -44,11 +44,19 @@ export function QuotationForm({ clients }: { clients: any[] }) {
 
     startTransition(async () => {
       try {
-        await createQuotationAction(formData, items);
-        toast.success("Quotation created successfully!");
-        router.push("/dashboard/quotations");
+        const result = await createQuotationAction(formData, items);
+        
+        if (result?.error) {
+          if (result.error.includes("limit reached")) {
+            router.push("?upgrade=true");
+          } else {
+            toast.error(result.error);
+          }
+        } else if (result) {
+          router.push(`/quotation/${result.token || result}`);
+        }
       } catch (error: any) {
-        toast.error(error.message || "Failed to create quotation");
+        toast.error("An unexpected error occurred.");
       }
     });
   }

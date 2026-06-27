@@ -24,7 +24,7 @@ export async function createInvoice(formData: FormData) {
   const platformSettings = await getPublicPlatformSettings()
 
   if (platformSettings?.strict_kyc_mode && business && (!business.phone || !business.address)) {
-    throw new Error('Please complete your Business Profile (Phone & Address) in Settings before creating invoices (Strict KYC Mode active).')
+    return { error: 'Please complete your Business Profile (Phone & Address) in Settings before creating invoices (Strict KYC Mode active).' }
   }
 
   let businessId = business?.id
@@ -64,16 +64,20 @@ export async function createInvoice(formData: FormData) {
   const itemsJson = formData.get('items') as string
   const items = JSON.parse(itemsJson)
 
-  // 4. Handle Client CRM (Upsert by email or create new)
+  const submittedClientId = formData.get('client_id') as string
+
+  // 4. Handle Client CRM
   let clientId: string
 
-  if (clientEmail) {
+  if (submittedClientId) {
+    clientId = submittedClientId;
+  } else if (clientEmail) {
     const { data: existingClient } = await supabase
       .from('clients')
       .select('id')
       .eq('business_id', businessId)
       .eq('email', clientEmail)
-      .single()
+      .maybeSingle()
 
     if (existingClient) {
       clientId = existingClient.id

@@ -22,7 +22,7 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
   const platformSettings = await getPublicPlatformSettings()
 
   if (platformSettings?.strict_kyc_mode && (!business.phone || !business.address)) {
-    throw new Error('Please complete your Business Profile (Phone & Address) in Settings before creating estimates (Strict KYC Mode active).')
+    return { error: 'Please complete your Business Profile (Phone & Address) in Settings before creating estimates (Strict KYC Mode active).' }
   }
 
   const client_id = formData.get('client_id') as string
