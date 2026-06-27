@@ -17,7 +17,7 @@ export default async function NewQuotationPage() {
     .limit(1)
     .maybeSingle();
 
-  let clients = [];
+  let clients: any[] = [];
   if (business) {
     const { data } = await supabase
       .from('clients')
