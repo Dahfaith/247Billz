@@ -38,7 +38,7 @@ export default async function SupportPage() {
               <CardTitle className="text-xl text-[#0F172A]">Your Ticket History</CardTitle>
               <CardDescription>Track the status of your recent requests.</CardDescription>
             </CardHeader>
-            <div className="p-4 sm:hidden">
+            <div className="p-4 md:hidden">
               {tickets.length === 0 ? (
                 <div className="text-center py-8 text-[#94A3B8]">
                   You haven't opened any support tickets yet.
@@ -76,7 +76,7 @@ export default async function SupportPage() {
               )}
             </div>
 
-            <div className="hidden sm:block p-0 overflow-x-auto">
+            <div className="hidden md:block p-0 overflow-x-auto">
               <Table className="min-w-full">
                 <TableHeader className="bg-[#F8FAFC]">
                   <TableRow className="border-[#E2E8F0] hover:bg-transparent">

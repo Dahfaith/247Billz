@@ -397,15 +397,30 @@ export async function getAdminTicketByNumber(ticketNumber: string) {
 export async function replyToTicket(ticketId: string, reply: string) {
   const supabase = getAdminClient()
   try {
-    const { error } = await supabase
+    const { data: updatedTicket, error } = await supabase
       .from('support_tickets')
       .update({
         admin_reply: reply,
         status: 'in_progress'
       })
       .eq('id', ticketId)
+      .select('business_id')
+      .single()
+
     if (error) throw error
+
+    if (updatedTicket?.business_id) {
+      await supabase.from('notifications').insert({
+        business_id: updatedTicket.business_id,
+        title: 'Support ticket updated',
+        message: 'Your support ticket has a new reply from our team. Check your dashboard to view it.',
+        type: 'success',
+        read: false
+      })
+    }
+
     revalidatePath('/admin/support')
+    revalidatePath('/dashboard/support')
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }

@@ -98,7 +98,7 @@ export default async function AdminSupportPage() {
           </div>
         </div>
         
-        <div className="space-y-4 p-4 sm:hidden">
+        <div className="space-y-4 p-4 md:hidden">
           {displayTickets.length === 0 ? (
             <div className="text-center text-slate-500">No support tickets found.</div>
           ) : (
@@ -131,7 +131,7 @@ export default async function AdminSupportPage() {
             ))
           )}
         </div>
-        <div className="hidden sm:block">
+        <div className="hidden md:block">
           <Table>
             <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
               <TableRow className="border-[#E2E8F0] dark:border-slate-800 hover:bg-transparent">
