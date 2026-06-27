@@ -43,7 +43,7 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
       valid_until,
       notes,
     })
-    .select()
+    .select('*')
     .single()
 
   if (error) {
@@ -67,6 +67,8 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
   }
 
   revalidatePath('/dashboard/quotations')
+  // Ensure the public quotation page is revalidated so the new page is available immediately
+  revalidatePath(`/quotation/${quotation.secure_token}`, 'page')
   return { token: quotation.secure_token, id: quotation.id }
 }
 
@@ -83,7 +85,9 @@ export async function acceptQuotationAction(quotationId: string) {
   }
 
   revalidatePath('/dashboard/quotations')
-  revalidatePath(`/quotation/[token]`, 'page')
+  // Revalidate the specific public quotation page
+  const { data: updated } = await supabase.from('quotations').select('secure_token').eq('id', quotationId).single()
+  if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
 }
 
 export async function declineQuotationAction(quotationId: string) {
@@ -99,7 +103,8 @@ export async function declineQuotationAction(quotationId: string) {
   }
 
   revalidatePath('/dashboard/quotations')
-  revalidatePath(`/quotation/[token]`, 'page')
+  const { data: updated } = await supabase.from('quotations').select('secure_token').eq('id', quotationId).single()
+  if (updated?.secure_token) revalidatePath(`/quotation/${updated.secure_token}`, 'page')
 }
 
 export async function convertQuotationToInvoiceAction(quotationId: string) {
