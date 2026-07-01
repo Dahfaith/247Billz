@@ -47,6 +47,11 @@ export default function AdminLayout({
     router.push('/login')
   }
 
+  // Do not render the dashboard sidebar on the login page
+  if (pathname === '/admin/login') {
+    return <>{children}</>
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#020617] text-[#0F172A] dark:text-slate-200 font-sans flex">
       {/* Mobile Sidebar Overlay */}
