@@ -196,8 +196,8 @@ export async function adminUpgradeBusinessPlan(businessId: string, newTier: 'sta
     const currentRank = tierRanks[(business?.subscription_tier as keyof typeof tierRanks) || 'free']
     const targetRank = tierRanks[newTier]
 
-    if (targetRank < currentRank && newTier === 'free') {
-      throw new Error('Cannot downgrade a paid plan to free via this action.')
+    if (targetRank < currentRank) {
+      throw new Error('Cannot downgrade a paid plan via this action.')
     }
 
     const { error } = await supabase
