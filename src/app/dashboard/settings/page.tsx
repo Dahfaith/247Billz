@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import BankSettingsForm from "@/components/bank-settings-form"
 import BusinessSettingsForm from "@/components/business-settings-form"
 import PersonalSettingsForm from "@/components/personal-settings-form"
+import PasswordSettingsForm from "@/components/password-settings-form"
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -37,6 +38,7 @@ export default async function SettingsPage() {
         <PersonalSettingsForm user={user} />
         <BusinessSettingsForm business={business} />
         <BankSettingsForm banks={sortedBanks} business={business} />
+        <PasswordSettingsForm />
       </div>
     </div>
   )

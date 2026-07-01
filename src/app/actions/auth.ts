@@ -108,3 +108,46 @@ export async function verifyAdminOtp(email: string, token: string) {
   revalidatePath('/', 'layout')
   redirect('/admin')
 }
+
+export async function sendPasswordResetEmail(formData: FormData) {
+  const email = formData.get('email') as string
+  if (!email) return redirect('/forgot-password?message=Email is required.')
+
+  const supabase = await createClient()
+  // Add a redirect back to the callback route which handles the PKCE exchange
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/reset-password`,
+  })
+
+  if (error) {
+    return redirect(`/forgot-password?message=${error.message}`)
+  }
+
+  return redirect('/forgot-password?success=Check your email for a password reset link.')
+}
+
+export async function updateUserPassword(formData: FormData) {
+  const password = formData.get('password') as string
+  const redirectUrl = formData.get('redirectUrl') as string
+
+  if (!password || password.length < 6) {
+    return { success: false, error: 'Password must be at least 6 characters long.' }
+  }
+
+  const supabase = await createClient()
+  
+  // This securely updates the password for the currently logged in session (established via callback)
+  const { error } = await supabase.auth.updateUser({
+    password,
+  })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  if (redirectUrl) {
+    redirect(redirectUrl)
+  }
+
+  return { success: true }
+}

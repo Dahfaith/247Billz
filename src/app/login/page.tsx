@@ -41,7 +41,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password">Password</Label>
-                <Link href="#" className="text-sm text-primary hover:underline font-medium">Forgot password?</Link>
+                <Link href="/forgot-password" className="text-sm text-primary hover:underline font-medium">Forgot password?</Link>
               </div>
               <Input id="password" name="password" type="password" required />
             </div>
