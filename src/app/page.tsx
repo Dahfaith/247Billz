@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ArrowRight, Smartphone, Menu, Sparkles, X } from "lucide-react";
+import { CheckCircle2, ArrowRight, ChevronLeft, ChevronRight, Smartphone, Menu, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 
 const features = [
@@ -17,11 +17,90 @@ const features = [
   { title: "Automated Limits", desc: "Focus on your business, we track your monthly usage." },
 ];
 
+const testimonials = [
+  {
+    quote: "247Billz made client invoicing painless. Quotes are approved instantly and payment is easy for our customers.",
+    name: "Aisha Bello",
+    role: "Founder, Crafthive",
+  },
+  {
+    quote: "The dashboard gives us the confidence to scale. Payment statuses update automatically and our team stays aligned.",
+    name: "Emeka Nwosu",
+    role: "Agency Owner",
+  },
+  {
+    quote: "Our business moved faster once we could send secure links without requiring client logins. It’s a game changer.",
+    name: "Nkechi Okafor",
+    role: "Operations Lead",
+  },
+];
+function TestimonialSlider() {
+  const [active, setActive] = useState(0);
+  const current = testimonials[active];
+
+  return (
+    <div className="rounded-3xl border border-border bg-background p-6 shadow-sm">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground font-semibold">Testimonial</p>
+          <p className="text-sm text-muted-foreground">Swipe or tap to browse client stories.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActive((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:bg-primary/10 transition"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setActive((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:bg-primary/10 transition"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <p className="text-muted-foreground text-sm leading-relaxed">“{current.quote}”</p>
+      <div className="mt-6">
+        <p className="font-semibold">{current.name}</p>
+        <p className="text-sm text-muted-foreground">{current.role}</p>
+      </div>
+      <div className="mt-6 flex items-center justify-center gap-2">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={() => setActive(index)}
+            className={`h-2.5 w-2.5 rounded-full transition ${index === active ? 'bg-primary' : 'bg-border'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+type PricingPlanName = "Free" | "Starter" | "Pro" | "Business";
+
+type PricingComparisonRow = {
+  label: string;
+} & Record<PricingPlanName, string | boolean>;
+
 const pricing = [
-  { name: "Free", price: "₦0", limit: "Max 3 Invoices/mo", features: ["Basic Analytics", "247Billz Watermark"], cta: "Get Started" },
-  { name: "Starter", price: "₦2,100", limit: "Max 20 Invoices/mo", features: ["Full Analytics", "247Billz Watermark"], cta: "Start Trial" },
-  { name: "Pro", price: "₦5,100", limit: "Unlimited Documents", features: ["Custom Branding", "Multi-Currency Metrics"], cta: "Go Pro", highlight: true },
-  { name: "Business", price: "₦10,000", limit: "Unlimited Everything", features: ["Priority Support", "Multi-Profile Mapping", "API Access"], cta: "Contact Sales" },
+  { name: "Free", price: "₦0", details: "Perfect for new businesses starting with basic invoicing.", features: ["3 invoices per month", "Basic reporting", "247Billz watermark"], cta: "Start free" },
+  { name: "Starter", price: "₦2,100", details: "For growing teams that need more volume and client management.", features: ["20 invoices per month", "Custom branding", "Email invoices"], cta: "Upgrade" },
+  { name: "Pro", price: "₦5,100", details: "Best for businesses that want unlimited documents and advanced control.", features: ["Unlimited invoices", "Multi-currency support", "Quote conversion"], highlight: true, cta: "Go Pro" },
+  { name: "Business", price: "₦10,000", details: "For enterprises needing priority support and premium capabilities.", features: ["Priority support", "Advanced permissions", "API access"], cta: "Contact sales" },
+] as const;
+
+const pricingComparison: PricingComparisonRow[] = [
+  { label: "Invoices per month", Free: "3", Starter: "20", Pro: "Unlimited", Business: "Unlimited" },
+  { label: "Custom branding", Free: false, Starter: true, Pro: true, Business: true },
+  { label: "Multi-currency support", Free: false, Starter: false, Pro: true, Business: true },
+  { label: "Quote acceptance", Free: true, Starter: true, Pro: true, Business: true },
+  { label: "Priority support", Free: false, Starter: false, Pro: false, Business: true },
+  { label: "API access", Free: false, Starter: false, Pro: false, Business: true },
+  { label: "Watermark removal", Free: false, Starter: true, Pro: true, Business: true },
 ];
 
 const faqs = [
@@ -248,6 +327,54 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Trust & Workflow */}
+      <section className="py-24 container mx-auto px-6">
+        <div className="max-w-4xl mx-auto text-center mb-14">
+          <p className="text-sm uppercase tracking-[0.3em] text-primary font-semibold">Trusted by growing businesses</p>
+          <h2 className="mt-4 text-4xl font-bold">Built for teams that need accuracy, speed, and security</h2>
+          <p className="mt-4 text-muted-foreground text-lg">From invoices to client payments, 247Billz keeps your billing workflow consistent and reliable.</p>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="rounded-3xl bg-card border border-border p-6 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-semibold">Secure payments</h3>
+            <p className="mt-3 text-sm text-muted-foreground">Fast checkout links, encrypted data, and provable RLS protection for every transaction.</p>
+          </div>
+          <div className="rounded-3xl bg-card border border-border p-6 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-semibold">No login client access</h3>
+            <p className="mt-3 text-sm text-muted-foreground">Clients can approve quotations, view invoices, and pay instantly without creating an account.</p>
+          </div>
+          <div className="rounded-3xl bg-card border border-border p-6 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Smartphone className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-semibold">Mobile-ready billing</h3>
+            <p className="mt-3 text-sm text-muted-foreground">Everything is optimized for phones and tablets, so your clients can pay on the go.</p>
+          </div>
+        </div>
+
+        <div className="mt-20 grid gap-6 lg:grid-cols-4">
+          {[
+            { step: '1', title: 'Create invoice', desc: 'Draft professional invoices and quotations in seconds.' },
+            { step: '2', title: 'Share link', desc: 'Send a secure payment link directly to your client.' },
+            { step: '3', title: 'Receive payment', desc: 'Clients pay instantly with Flutterwave or future gateways.' },
+            { step: '4', title: 'Reconcile faster', desc: 'Track paid, overdue and pending statuses from one dashboard.' },
+          ].map((item) => (
+            <div key={item.step} className="rounded-3xl border border-border bg-background p-6 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white font-bold text-lg">{item.step}</div>
+              <h4 className="mt-4 text-lg font-semibold">{item.title}</h4>
+              <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Features */}
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-6">
@@ -269,39 +396,93 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Testimonials */}
+      <section className="py-24 container mx-auto px-6">
+        <div className="max-w-3xl mx-auto text-center mb-12">
+          <p className="text-sm uppercase tracking-[0.3em] text-primary font-semibold">Loved by businesses</p>
+          <h2 className="mt-4 text-4xl font-bold">Hear why teams choose 247Billz</h2>
+          <p className="mt-4 text-muted-foreground text-lg">Trusted by teams who need fast invoicing, client payment links, and reliable reporting.</p>
+        </div>
+
+        <div className="hidden lg:grid gap-6 lg:grid-cols-3">
+          {testimonials.map((item) => (
+            <div key={item.name} className="rounded-3xl border border-border bg-background p-6 shadow-sm">
+              <p className="text-muted-foreground text-sm leading-relaxed">“{item.quote}”</p>
+              <div className="mt-6">
+                <p className="font-semibold">{item.name}</p>
+                <p className="text-sm text-muted-foreground">{item.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="lg:hidden">
+          <TestimonialSlider />
+        </div>
+
+        <div className="mt-16 border-t border-border pt-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center text-sm text-muted-foreground">
+            <div className="rounded-3xl bg-card px-4 py-6">Acme Corp</div>
+            <div className="rounded-3xl bg-card px-4 py-6">Command+</div>
+            <div className="rounded-3xl bg-card px-4 py-6">TechFlow</div>
+            <div className="rounded-3xl bg-card px-4 py-6">Globex</div>
+            <div className="rounded-3xl bg-card px-4 py-6">Finova</div>
+            <div className="rounded-3xl bg-card px-4 py-6">Zenith</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing comparison */}
       <section className="py-24 container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold">Simple, transparent pricing</h2>
-          <p className="mt-4 text-muted-foreground">Start for free, upgrade when you need more power.</p>
+          <p className="mt-4 text-muted-foreground">Choose the plan that fits your business growth.</p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-          {pricing.map((p, i) => (
-            <Card key={i} className={`relative flex flex-col ${p.highlight ? 'border-primary shadow-lg scale-105 z-10' : 'border-border'}`}>
-              {p.highlight && <div className="absolute top-0 inset-x-0 h-1 bg-primary rounded-t-xl" />}
-              <CardHeader>
-                <CardTitle>{p.name}</CardTitle>
-                <div className="mt-4 flex items-baseline text-4xl font-extrabold">
-                  {p.price}<span className="ml-1 text-xl font-medium text-muted-foreground">/mo</span>
-                </div>
-                <CardDescription className="mt-2 font-medium text-foreground">{p.limit}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <ul className="space-y-3">
-                  {p.features.map((feat, j) => (
-                    <li key={j} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-4 h-4 text-primary" /> {feat}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button asChild className={`w-full ${p.highlight ? 'bg-primary text-white hover:bg-primary/90' : 'variant-outline'}`}>
-                  <Link href="/signup">{p.cta}</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+
+        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm max-w-7xl mx-auto">
+          <div className="bg-muted/80 px-8 py-6">
+            <h3 className="text-2xl font-semibold">Compare features</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Everything your business needs at a glance.</p>
+          </div>
+
+          <div className="px-4 pb-6 space-y-4">
+            {pricing.map((plan) => (
+              <Card key={plan.name} className="border border-border bg-background">
+                <CardHeader className="pb-0">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{plan.name}</CardTitle>
+                        {plan.name === 'Pro' ? (
+                          <span className="rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-sm shadow-emerald-500/20">
+                            Most popular
+                          </span>
+                        ) : null}
+                      </div>
+                      <CardDescription className="text-sm text-muted-foreground">{plan.details}</CardDescription>
+                    </div>
+                    <div className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary inline-flex items-center justify-center">{plan.price}</div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="grid gap-3">
+                    {pricingComparison.map((row) => (
+                      <div key={row.label} className="grid grid-cols-[1fr_auto] gap-4 rounded-3xl border border-border/80 bg-muted/50 px-4 py-3">
+                        <span className="text-sm leading-tight text-muted-foreground">{row.label}</span>
+                        <span className="flex items-center justify-end text-sm font-medium text-foreground">
+                          {typeof row[plan.name] === 'boolean' ? (
+                            row[plan.name] ? <CheckCircle2 className="inline-block w-4 h-4 text-emerald-500" /> : <X className="inline-block w-4 h-4 text-red-500" />
+                          ) : (
+                            row[plan.name]
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
