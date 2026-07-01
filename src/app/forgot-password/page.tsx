@@ -1,12 +1,40 @@
+"use client"
+
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { sendPasswordResetEmail } from "@/app/actions/auth";
+import { toast } from "sonner";
 
-export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ message?: string, success?: string }> }) {
-  const resolvedParams = await searchParams;
+export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      
+      const res = await sendPasswordResetEmail(formData);
+      
+      if (res?.error) {
+        toast.error(res.error);
+      } else if (res?.success) {
+        toast.success("If that email is registered, a reset link has been sent.");
+        setEmail(""); // clear input
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-2">
@@ -27,24 +55,22 @@ export default async function ForgotPasswordPage({ searchParams }: { searchParam
           <h1 className="text-3xl font-extrabold tracking-tight mb-2">Reset Password</h1>
           <p className="text-muted-foreground mb-6">Enter your email address and we will send you a link to reset your password.</p>
 
-          {resolvedParams?.message && (
-            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-6 font-medium">
-              {resolvedParams.message}
-            </div>
-          )}
-          {resolvedParams?.success && (
-            <div className="bg-green-500/15 text-green-600 text-sm p-3 rounded-md mb-6 font-medium">
-              {resolvedParams.success}
-            </div>
-          )}
-
-          <form action={sendPasswordResetEmail} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="name@company.com" required />
+              <Input 
+                id="email" 
+                name="email" 
+                type="email" 
+                placeholder="name@company.com" 
+                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
-            <Button type="submit" className="w-full bg-primary text-white hover:bg-primary/90 h-11 text-base mt-2">
+            <Button type="submit" disabled={loading} className="w-full bg-primary text-white hover:bg-primary/90 h-11 text-base mt-2 gap-2">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Send Reset Link
             </Button>
           </form>

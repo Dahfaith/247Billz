@@ -111,20 +111,24 @@ export async function verifyAdminOtp(email: string, token: string) {
 
 export async function sendPasswordResetEmail(formData: FormData) {
   const email = formData.get('email') as string
-  if (!email) return redirect('/forgot-password?message=Email is required.')
+  if (!email) return { success: false, error: 'Email is required.' }
 
   const supabase = await createClient()
-  // Add a redirect back to the callback route which handles the PKCE exchange
+  
+  // Use a hardcoded absolute URL just to be absolutely certain it routes correctly
+  // If NEXT_PUBLIC_SITE_URL is not configured on Vercel, it will fall back to https://247billz.com
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.247billz.com'
+  
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/reset-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
   })
 
   if (error) {
     const errorMessage = error.message || (typeof error === 'string' ? error : 'Failed to send reset link.')
-    return redirect(`/forgot-password?message=${encodeURIComponent(errorMessage)}`)
+    return { success: false, error: errorMessage }
   }
 
-  return redirect('/forgot-password?success=If that email is registered, a reset link has been sent.')
+  return { success: true }
 }
 
 export async function updateUserPassword(formData: FormData) {
