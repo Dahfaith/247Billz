@@ -124,7 +124,13 @@ export async function sendPasswordResetEmail(formData: FormData) {
   })
 
   if (error) {
-    const errorMessage = error.message || (typeof error === 'string' ? error : 'Failed to send reset link.')
+    let errorMessage = error.message || (typeof error === 'string' ? error : 'Failed to send reset link.')
+    
+    // Supabase sometimes returns an empty object string "{}" on rate limits or SMTP errors
+    if (errorMessage === '{}' || errorMessage === '[object Object]') {
+      errorMessage = "Failed to send reset link. If you have requested multiple emails, please wait a few minutes and try again."
+    }
+
     return { success: false, error: errorMessage }
   }
 
