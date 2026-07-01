@@ -26,6 +26,7 @@ const navigation = [
   { name: 'Notifications', href: '/admin/notifications', icon: Bell },
   { name: 'Support Tickets', href: '/admin/support', icon: HeadphonesIcon },
   { name: 'CMS', href: '/admin/cms', icon: FileEdit },
+  { name: 'Blog', href: '/admin/blog', icon: FileText },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Audit Logs', href: '/admin/audit', icon: ShieldAlert },
   { name: 'Settings', href: '/admin/api-providers', icon: Settings },

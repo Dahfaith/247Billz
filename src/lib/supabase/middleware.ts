@@ -67,10 +67,10 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Admin route protection
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/login')) {
     if (!user) {
       const url = request.nextUrl.clone()
-      url.pathname = '/login'
+      url.pathname = '/admin/login'
       return NextResponse.redirect(url)
     }
     
@@ -87,11 +87,20 @@ export async function updateSession(request: NextRequest) {
   // If user is logged in, prevent them from accessing /login and /signup
   if (
     user &&
-    (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup'))
+    (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
+  }
+
+  // Prevent logged in admin from seeing the admin login page
+  if (user && request.nextUrl.pathname === '/admin/login') {
+    if (process.env.SUPER_ADMIN_EMAIL && user.email?.toLowerCase() === process.env.SUPER_ADMIN_EMAIL.toLowerCase()) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

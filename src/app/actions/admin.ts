@@ -143,14 +143,23 @@ export async function getAdminUsers() {
       
     if (profileError) throw profileError
 
+    const { data: businesses, error: businessError } = await supabase
+      .from('businesses')
+      .select('owner_id, city, country')
+
+    if (businessError) throw businessError
+
     // Merge auth data (email) into profiles
     const users = authData.users.map(authUser => {
       const profile = profiles.find(p => p.id === authUser.id) || {}
+      const business = businesses.find(b => b.owner_id === authUser.id)
       return {
         ...profile,
         id: authUser.id,
         email: authUser.email,
         created_at: authUser.created_at, // use auth creation date as fallback
+        city: business?.city || 'Unknown',
+        country: business?.country || 'Unknown',
         ...authUser.user_metadata // include metadata like full_name
       }
     })
@@ -486,6 +495,106 @@ export async function updateCMSPage(id: string, formData: FormData) {
     const { error } = await supabase.from('cms_pages').update({ title, slug, status, content }).eq('id', id)
     if (error) throw error
     revalidatePath('/admin/cms')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+// ==========================================
+// BLOG MANAGEMENT
+// ==========================================
+
+export async function getAdminBlogPosts() {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    return { success: true, posts: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getBlogPostById(id: string) {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase.from('blog_posts').select('*').eq('id', id).single()
+    if (error) throw error
+    return { success: true, post: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getPublicBlogPosts() {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('id, title, slug, excerpt, cover_image_url, author_name, published_at')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+    if (error) throw error
+    return { success: true, posts: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getPublicBlogPostBySlug(slug: string) {
+  const supabase = getAdminClient()
+  try {
+    const { data, error } = await supabase.from('blog_posts').select('*').eq('slug', slug).eq('status', 'published').single()
+    if (error) throw error
+    return { success: true, post: data }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function createBlogPost(formData: FormData) {
+  const supabase = getAdminClient()
+  try {
+    const title = formData.get('title') as string
+    const slug = formData.get('slug') as string
+    const status = formData.get('status') as string
+    const excerpt = formData.get('excerpt') as string
+    const content = formData.get('content') as string
+    const cover_image_url = formData.get('cover_image_url') as string
+    const author_name = formData.get('author_name') as string
+
+    const { error } = await supabase.from('blog_posts').insert([{ 
+      title, slug, status, excerpt, content, cover_image_url, author_name,
+      published_at: status === 'published' ? new Date().toISOString() : null
+    }])
+    if (error) throw error
+    revalidatePath('/admin/blog')
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function updateBlogPost(id: string, formData: FormData) {
+  const supabase = getAdminClient()
+  try {
+    const title = formData.get('title') as string
+    const slug = formData.get('slug') as string
+    const status = formData.get('status') as string
+    const excerpt = formData.get('excerpt') as string
+    const content = formData.get('content') as string
+    const cover_image_url = formData.get('cover_image_url') as string
+    const author_name = formData.get('author_name') as string
+
+    const updateData: any = { title, slug, status, excerpt, content, cover_image_url, author_name }
+    if (status === 'published') {
+      updateData.published_at = new Date().toISOString()
+    }
+
+    const { error } = await supabase.from('blog_posts').update(updateData).eq('id', id)
+    if (error) throw error
+    revalidatePath('/admin/blog')
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }

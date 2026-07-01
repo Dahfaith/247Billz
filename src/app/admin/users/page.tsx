@@ -63,6 +63,7 @@ export default async function AdminUsersPage() {
               <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                 <TableRow className="border-[#E2E8F0] dark:border-slate-800 hover:bg-transparent">
                   <TableHead className="font-medium text-slate-500 dark:text-slate-400">User</TableHead>
+                  <TableHead className="font-medium text-slate-500 dark:text-slate-400">Location</TableHead>
                   <TableHead className="font-medium text-slate-500 dark:text-slate-400">Role</TableHead>
                   <TableHead className="font-medium text-slate-500 dark:text-slate-400">Joined</TableHead>
                   <TableHead className="font-medium text-slate-500 dark:text-slate-400 text-right">Actions</TableHead>
@@ -83,6 +84,11 @@ export default async function AdminUsersPage() {
                           </div>
                           <div className="text-xs text-slate-500">{user.id}</div>
                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-slate-900 dark:text-slate-100 font-medium">
+                        {user.city === 'Unknown' && user.country === 'Unknown' ? 'Location Unknown' : `${user.city}, ${user.country}`}
                       </div>
                     </TableCell>
                     <TableCell>

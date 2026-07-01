@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, ArrowRight, Eye } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { AdvancedQRCode } from "@/components/advanced-qr-code";
 import { toast } from "sonner";
 import { CURRENCIES, getCurrencySymbol, formatCurrency } from "@/lib/currency";
 
@@ -217,10 +217,12 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
                   {business?.phone && <p className="text-sm text-slate-500">{business.phone}</p>}
                   {business?.address && <p className="text-sm text-slate-500">{business.address}</p>}
                 </div>
-                <div className="p-1.5 bg-white rounded-lg border border-slate-200 shadow-sm hidden sm:block">
-                  <QRCodeSVG value={`https://247billz.com/invoice/INV-0001`} size={64} level="L" />
-                  <p className="text-[9px] text-center text-slate-500 mt-1 uppercase font-bold tracking-widest">Scan to View</p>
-                </div>
+                <AdvancedQRCode 
+                  url="https://247billz.com/invoice/INV-0001" 
+                  businessName={business?.name} 
+                  logoUrl={business?.logo_url} 
+                  size={64} 
+                />
               </div>
             </div>
 

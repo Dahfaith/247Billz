@@ -35,6 +35,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
 
     const referredBy = user.user_metadata?.referred_by || null;
+    
+    // Attempt to grab location from Vercel edge headers
+    const reqHeaders = await import('next/headers').then(mod => mod.headers());
+    const country = reqHeaders.get('x-vercel-ip-country') || 'Unknown';
+    const city = reqHeaders.get('x-vercel-ip-city') || 'Unknown';
 
     // Auto-create business
     const { data: newBusiness } = await supabase
@@ -43,7 +48,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         owner_id: user.id,
         name: user.user_metadata?.business_name || 'My Business',
         email: user.email,
-        referred_by: referredBy
+        referred_by: referredBy,
+        city: city,
+        country: country
       })
       .select('*')
       .single();

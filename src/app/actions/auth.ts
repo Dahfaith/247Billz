@@ -68,3 +68,43 @@ export async function logout() {
   revalidatePath('/', 'layout')
   redirect('/')
 }
+
+export async function sendAdminOtp(email: string) {
+  if (email.toLowerCase() !== process.env.SUPER_ADMIN_EMAIL?.toLowerCase()) {
+    return { success: false, error: 'Unauthorized email address.' }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false,
+    },
+  })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
+}
+
+export async function verifyAdminOtp(email: string, token: string) {
+  if (email.toLowerCase() !== process.env.SUPER_ADMIN_EMAIL?.toLowerCase()) {
+    return { success: false, error: 'Unauthorized email address.' }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: 'email',
+  })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/admin')
+}

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import { QRCodeSVG } from "qrcode.react";
+import { AdvancedQRCode } from "@/components/advanced-qr-code";
 import { CheckCircle2 } from "lucide-react";
 import { PrintButton } from "@/components/print-button";
 
@@ -74,10 +74,13 @@ export default async function PublicReceiptPage({
                 {invoice.business.phone && <p className="text-sm text-slate-500">{invoice.business.phone}</p>}
                 {invoice.business.address && <p className="text-sm text-slate-500">{invoice.business.address}</p>}
               </div>
-              <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-sm">
-                <QRCodeSVG value={`https://247billz.com/receipt/${token}`} size={80} level="L" fgColor="#22c55e" />
-                <p className="text-[10px] text-center text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Verify</p>
-              </div>
+              <AdvancedQRCode 
+                url={`https://247billz.com/receipt/${token}`} 
+                businessName={invoice.business?.name} 
+                logoUrl={invoice.business?.logo_url} 
+                color="#0f172a"
+                size={80} 
+              />
             </div>
           </div>
 

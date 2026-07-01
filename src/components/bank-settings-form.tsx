@@ -51,7 +51,7 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
               Your payments are automatically routed to your <strong>{business.bank_name}</strong> account ending in <strong>{business.account_number.slice(-4)}</strong>.
             </p>
             <p className="text-xs text-slate-400">
-              To change your payout account, please <a href="mailto:support@247billz.com" className="text-primary hover:underline font-medium">contact support</a>.
+              To change your payout account, please <a href="mailto:247billzsupport@gmail.com" className="text-primary hover:underline font-medium">contact support</a>.
             </p>
           </div>
         ) : (

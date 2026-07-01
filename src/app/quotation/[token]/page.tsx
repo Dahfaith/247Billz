@@ -3,10 +3,11 @@ import { notFound } from "next/navigation"
 import { QuotationActions } from "@/components/quotation-actions"
 import PdfDownloadButton from "@/components/pdf-download-button"
 import ShareButton from "@/components/share-button"
+import WhatsAppButton from "@/components/whatsapp-button"
+import { formatCurrency } from "@/lib/currency"
 
 export const dynamic = 'force-dynamic'
 import { AutoCloseBanner } from "@/components/auto-close-banner"
-import { formatCurrency } from "@/lib/currency"
 
 export default async function PublicQuotationPage({ params }: { params: Promise<{ token: string }> }) {
   const resolvedParams = await params
@@ -69,6 +70,12 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
       <div className="w-full max-w-4xl flex justify-end mb-4 print:hidden">
         <div className="flex gap-2">
           <PdfDownloadButton targetId="quotation-document" fileName={`Quotation_${quote.quotation_number}`} />
+          <WhatsAppButton 
+            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/quotation/${quote.secure_token}`} 
+            type="quotation" 
+            amount={formatCurrency(total, quote.currency)}
+            clientName={quote.client?.name}
+          />
           <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/quotation/${quote.secure_token}`} />
         </div>
       </div>

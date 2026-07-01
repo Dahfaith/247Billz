@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import { QRCodeSVG } from "qrcode.react";
+import { AdvancedQRCode } from "@/components/advanced-qr-code";
 import { initiatePayment } from "@/app/actions/payment";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import PdfDownloadButton from "@/components/pdf-download-button";
 import ShareButton from "@/components/share-button";
+import WhatsAppButton from "@/components/whatsapp-button";
 import { formatCurrency } from "@/lib/currency";
 
 export default async function PublicInvoicePage({ 
@@ -73,6 +74,12 @@ export default async function PublicInvoicePage({
       <div className="w-full max-w-4xl flex justify-end mb-4 print:hidden">
         <div className="flex gap-2">
           <PdfDownloadButton targetId="invoice-document" fileName={`Invoice_${invoice.invoice_number}`} />
+          <WhatsAppButton 
+            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/invoice/${token}`} 
+            type="invoice" 
+            amount={formatCurrency(total, invoice.currency)}
+            clientName={invoice.client?.name}
+          />
           <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/invoice/${token}`} />
         </div>
       </div>
@@ -104,10 +111,12 @@ export default async function PublicInvoicePage({
                 {invoice.business?.phone && <p className="text-sm text-slate-500">{invoice.business.phone}</p>}
                 {invoice.business?.address && <p className="text-sm text-slate-500">{invoice.business.address}</p>}
               </div>
-              <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-sm">
-                <QRCodeSVG value={`https://247billz.com/invoice/${token}`} size={80} level="L" />
-                <p className="text-[10px] text-center text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Scan to View</p>
-              </div>
+              <AdvancedQRCode 
+                url={`https://247billz.com/invoice/${token}`} 
+                businessName={invoice.business?.name} 
+                logoUrl={invoice.business?.logo_url} 
+                size={80} 
+              />
             </div>
           </div>
 

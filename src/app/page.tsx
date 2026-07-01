@@ -98,6 +98,7 @@ const pricingComparison: PricingComparisonRow[] = [
   { label: "Custom branding", Free: false, Starter: true, Pro: true, Business: true },
   { label: "Multi-currency support", Free: false, Starter: false, Pro: true, Business: true },
   { label: "Quote acceptance", Free: true, Starter: true, Pro: true, Business: true },
+  { label: "Storefront QR Codes", Free: false, Starter: true, Pro: true, Business: true },
   { label: "Priority support", Free: false, Starter: false, Pro: false, Business: true },
   { label: "API access", Free: false, Starter: false, Pro: false, Business: true },
   { label: "Watermark removal", Free: false, Starter: true, Pro: true, Business: true },
@@ -534,10 +535,10 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-primary transition-colors">About Us</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Careers</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Contact</Link></li>
+                <li><Link href="/about-us" className="hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link href="/careers" className="hover:text-primary transition-colors">Careers</Link></li>
+                <li><Link href="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
+                <li><Link href="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
               </ul>
             </div>
             

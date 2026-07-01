@@ -144,7 +144,7 @@ export default async function BillingPage() {
                      Active Subscription
                    </div>
                    <Button variant="outline" className="w-full" asChild>
-                     <a href="mailto:support@247billz.com?subject=Manage%20Subscription">
+                     <a href="mailto:247billzsupport@gmail.com?subject=Manage%20Subscription">
                        Manage Subscription
                      </a>
                    </Button>

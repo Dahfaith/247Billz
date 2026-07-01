@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "247Billz – Invoice, Quote & Get Paid Faster",
   description: "247Billz is a premium invoicing and receipt generation platform designed for modern African businesses. Create invoices, quotations, and receipts in seconds.",
+  verification: {
+    google: "n_28Rc86Tuj-cZiAS6kySq1X-X95g7jTkZuK9jAshAQ",
+  },
 };
 
 export default function RootLayout({
