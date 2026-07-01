@@ -120,10 +120,11 @@ export async function sendPasswordResetEmail(formData: FormData) {
   })
 
   if (error) {
-    return redirect(`/forgot-password?message=${error.message}`)
+    const errorMessage = error.message || (typeof error === 'string' ? error : 'Failed to send reset link.')
+    return redirect(`/forgot-password?message=${encodeURIComponent(errorMessage)}`)
   }
 
-  return redirect('/forgot-password?success=Check your email for a password reset link.')
+  return redirect('/forgot-password?success=If that email is registered, a reset link has been sent.')
 }
 
 export async function updateUserPassword(formData: FormData) {
