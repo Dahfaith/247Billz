@@ -3,7 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getPublicPlatformSettings } from "@/app/actions/settings";
 import { redirect } from "next/navigation";
 
-export default async function EditInvoicePage({ params }: { params: { id: string } }) {
+export default async function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
+  
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -34,7 +37,7 @@ export default async function EditInvoicePage({ params }: { params: { id: string
   const { data: invoice } = await supabase
     .from('invoices')
     .select('*, items:invoice_items(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('business_id', business?.id)
     .single();
 
