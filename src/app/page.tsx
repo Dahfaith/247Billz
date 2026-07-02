@@ -377,7 +377,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="py-24 bg-muted/30">
+      <section id="features" className="py-24 bg-muted/30">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold">Built for speed and elegance</h2>
@@ -434,7 +434,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing comparison */}
-      <section className="py-24 container mx-auto px-6">
+      <section id="pricing" className="py-24 container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold">Simple, transparent pricing</h2>
           <p className="mt-4 text-muted-foreground">Choose the plan that fits your business growth.</p>
