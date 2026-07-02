@@ -12,6 +12,9 @@ export default function Footer() {
                      pathname?.startsWith('/quotation') ||
                      pathname?.startsWith('/receipt');
 
+  const pricingHref = pathname === '/' ? '#pricing' : '/#pricing';
+  const featuresHref = pathname === '/' ? '#features' : '/#features';
+
   if (hideFooter) return null;
 
   return (
@@ -35,8 +38,8 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Product</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/#features" className="hover:text-primary transition-colors">Features</Link></li>
-              <li><Link href="/#pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
+              <li><Link href={featuresHref} className="hover:text-primary transition-colors">Features</Link></li>
+              <li><Link href={pricingHref} className="hover:text-primary transition-colors">Pricing</Link></li>
               <li><Link href="/integrations" className="hover:text-primary transition-colors">Integrations</Link></li>
               <li><Link href="/changelog" className="hover:text-primary transition-colors">Changelog</Link></li>
             </ul>

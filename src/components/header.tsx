@@ -13,6 +13,8 @@ export function Header() {
                      pathname?.startsWith('/quotation') ||
                      pathname?.startsWith('/receipt');
 
+  const pricingHref = pathname === '/' ? '#pricing' : '/#pricing';
+
   if (hideHeader) return null;
 
   return (
@@ -28,7 +30,7 @@ export function Header() {
               </Link>
               <nav className="hidden lg:flex items-center gap-4 text-sm text-muted-foreground">
                 <Link href="/how-it-works" className="hover:text-foreground transition-colors">How it works</Link>
-                <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+                <Link href={pricingHref} className="hover:text-foreground transition-colors">Pricing</Link>
                 <Link href="/support" className="hover:text-foreground transition-colors">Support</Link>
               </nav>
             </div>
