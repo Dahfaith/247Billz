@@ -7,7 +7,11 @@ import { MobileHeader } from "@/components/mobile-header";
 
 export function Header() {
   const pathname = usePathname();
-  const hideHeader = pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin');
+  const hideHeader = pathname?.startsWith('/dashboard') || 
+                     pathname?.startsWith('/admin') ||
+                     pathname?.startsWith('/invoice') ||
+                     pathname?.startsWith('/quotation') ||
+                     pathname?.startsWith('/receipt');
 
   if (hideHeader) return null;
 
