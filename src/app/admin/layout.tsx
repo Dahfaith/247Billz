@@ -153,7 +153,7 @@ export default function AdminLayout({
 
         {/* Footer */}
         <footer className="py-4 text-center text-sm text-slate-500 dark:text-slate-400 border-t border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-[#0F172A]">
-          Designed & Developed by <a href="https://www.visioreach.co" target="_blank" className="text-[#F97316] hover:underline">VisioReach</a>
+          Designed & Developed by <a href="https://www.visioreach.co" target="_blank" className="text-[#F97316] hover:underline">Visioreach Concepts</a>
         </footer>
       </div>
     </div>

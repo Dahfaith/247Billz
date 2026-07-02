@@ -61,7 +61,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} 247Billz. All rights reserved.
           </p>
           <div className="text-sm text-muted-foreground">
-            Designed & Developed by <a href="https://www.visioreach.co" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">VisioReach</a>
+            Designed & Developed by <a href="https://www.visioreach.co" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">Visioreach Concepts</a>
           </div>
         </div>
       </div>
