@@ -39,7 +39,8 @@ export async function initiatePayment(invoiceToken: string) {
   // 2. Fetch Items to calculate exact total
   const { data: items } = await supabase.from('invoice_items').select('*').eq('invoice_id', invoice.id)
   const subtotal = items?.reduce((acc: any, item: any) => acc + (item.quantity * item.price), 0) || 0
-  const tax = subtotal * (invoice.tax_rate / 100)
+  const taxRate = Number(invoice.tax_rate) || 0
+  const tax = subtotal * (taxRate / 100)
   const total = subtotal + tax
 
   // 3. Generate a unique transaction reference
@@ -68,7 +69,11 @@ export async function initiatePayment(invoiceToken: string) {
       secure_token: invoice.secure_token
     },
     subaccounts: [
-      { id: subaccountId }
+      { 
+        id: subaccountId,
+        transaction_charge_type: "percentage",
+        transaction_charge: 0
+      }
     ]
   }
 
