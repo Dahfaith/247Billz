@@ -66,6 +66,7 @@ export async function createInvoice(formData: FormData) {
   const items = JSON.parse(itemsJson)
 
   const submittedClientId = formData.get('client_id') as string
+  const invoiceId = formData.get('id') as string | null
 
   // 4. Handle Client CRM
   let clientId: string
@@ -111,35 +112,69 @@ export async function createInvoice(formData: FormData) {
     clientId = newClient.id
   }
 
-  // 5. Generate Invoice Number (Simple format: INV-YYYYMMDD-XXXX)
-  const randomSuffix = Math.floor(100000 + Math.random() * 900000)
-  const invoiceNumber = `INV-${randomSuffix}`
+  let currentInvoice: any = null;
 
-  // 6. Insert Invoice
-  // Generate short token for public sharing
-  const nano = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)
-  const short_token = nano()
+  if (invoiceId) {
+    // Check if invoice belongs to business and is not paid
+    const { data: existing } = await supabase
+      .from('invoices')
+      .select('*')
+      .eq('id', invoiceId)
+      .eq('business_id', businessId)
+      .single()
+    
+    if (!existing) throw new Error("Invoice not found or unauthorized")
+    if (existing.status === 'paid') throw new Error("Cannot edit a paid invoice")
+    
+    // Update invoice
+    const { data: updatedInvoice, error: updateError } = await supabase
+      .from('invoices')
+      .update({
+        client_id: clientId,
+        issue_date: issueDate,
+        due_date: dueDate,
+        currency: currency
+      })
+      .eq('id', invoiceId)
+      .select()
+      .single()
 
-  const { data: invoice, error: invoiceError } = await supabase
-    .from('invoices')
-    .insert({
-      business_id: businessId,
-      client_id: clientId,
-      invoice_number: invoiceNumber,
-      issue_date: issueDate,
-      due_date: dueDate,
-      currency: currency,
-      status: 'pending', // Default status
-      short_token
-    })
-    .select()
-    .single()
+    if (updateError) throw new Error(`Failed to update invoice: ${updateError.message}`)
+    currentInvoice = updatedInvoice
 
-  if (invoiceError) throw new Error(`Failed to create invoice: ${invoiceError.message}`)
+    // Delete old items so we can insert new ones
+    await supabase.from('invoice_items').delete().eq('invoice_id', invoiceId)
+  } else {
+    // Generate Invoice Number (Simple format: INV-YYYYMMDD-XXXX)
+    const randomSuffix = Math.floor(100000 + Math.random() * 900000)
+    const invoiceNumber = `INV-${randomSuffix}`
+
+    // Generate short token for public sharing
+    const nano = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)
+    const short_token = nano()
+
+    const { data: newInvoice, error: invoiceError } = await supabase
+      .from('invoices')
+      .insert({
+        business_id: businessId,
+        client_id: clientId,
+        invoice_number: invoiceNumber,
+        issue_date: issueDate,
+        due_date: dueDate,
+        currency: currency,
+        status: 'pending', // Default status
+        short_token
+      })
+      .select()
+      .single()
+
+    if (invoiceError) throw new Error(`Failed to create invoice: ${invoiceError.message}`)
+    currentInvoice = newInvoice
+  }
 
   // 7. Insert Line Items
   const invoiceItemsToInsert = items.map((item: any) => ({
-    invoice_id: invoice.id,
+    invoice_id: currentInvoice.id,
     description: item.description,
     quantity: item.quantity,
     price: item.price
@@ -149,8 +184,8 @@ export async function createInvoice(formData: FormData) {
     .from('invoice_items')
     .insert(invoiceItemsToInsert)
 
-  if (itemsError) throw new Error(`Failed to create invoice items: ${itemsError.message}`)
+  if (itemsError) throw new Error(`Failed to save invoice items: ${itemsError.message}`)
 
   // 8. Redirect to the public invoice view using the short token if available (fallback to secure_token)
-  redirect(`/invoice/${invoice.short_token || invoice.secure_token}`)
+  redirect(`/invoice/${currentInvoice.short_token || currentInvoice.secure_token}`)
 }

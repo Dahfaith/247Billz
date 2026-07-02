@@ -11,18 +11,22 @@ import { AdvancedQRCode } from "@/components/advanced-qr-code";
 import { toast } from "sonner";
 import { CURRENCIES, getCurrencySymbol, formatCurrency } from "@/lib/currency";
 
-export default function InvoiceBuilder({ business, platformSettings, clients = [] }: { business: any, platformSettings?: any, clients?: any[] }) {
+export default function InvoiceBuilder({ business, platformSettings, clients = [], invoice }: { business: any, platformSettings?: any, clients?: any[], invoice?: any }) {
   const router = useRouter();
-  const [currency, setCurrency] = useState(business?.currency || "NGN");
-  const [selectedClientId, setSelectedClientId] = useState("");
+  const [currency, setCurrency] = useState(invoice?.currency || business?.currency || "NGN");
+  const [selectedClientId, setSelectedClientId] = useState(invoice?.client_id || "");
   
   const selectedClient = clients.find(c => c.id === selectedClientId);
   const clientName = selectedClient?.name || "";
   const clientEmail = selectedClient?.email || "";
 
-  const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
-  const [dueDate, setDueDate] = useState("");
-  const [items, setItems] = useState([{ id: 1, description: "", quantity: 1, price: 0 }]);
+  const [issueDate, setIssueDate] = useState(invoice?.issue_date || new Date().toISOString().split('T')[0]);
+  const [dueDate, setDueDate] = useState(invoice?.due_date || "");
+  const [items, setItems] = useState(
+    invoice?.items?.length > 0 
+      ? invoice.items.map((i: any, index: number) => ({ id: i.id || index, description: i.description, quantity: i.quantity, price: i.price }))
+      : [{ id: 1, description: "", quantity: 1, price: 0 }]
+  );
   
   const addItem = () => setItems([...items, { id: Date.now(), description: "", quantity: 1, price: 0 }]);
   const removeItem = (id: number) => setItems(items.filter(i => i.id !== id));
@@ -53,6 +57,9 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
         formData.append("dueDate", dueDate);
         formData.append("currency", currency);
         formData.append("items", JSON.stringify(items));
+        if (invoice?.id) {
+          formData.append("id", invoice.id);
+        }
         
         const result = await createInvoice(formData);
         if (result?.error) {
@@ -178,7 +185,7 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
             onClick={handleSave}
             disabled={isPending}
           >
-            {isPending ? "Saving..." : "Save & Generate Link"} 
+            {isPending ? "Saving..." : invoice ? "Update Invoice" : "Save & Generate Link"} 
             {!isPending && <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
         </div>

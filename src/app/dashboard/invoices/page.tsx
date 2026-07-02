@@ -121,6 +121,13 @@ export default async function InvoicesPage() {
                             currency={invoice.currency}
                           />
                         )}
+                        {invoice.status !== 'paid' && (
+                          <Button asChild variant="ghost" size="sm" className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                            <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
+                              Edit
+                            </Link>
+                          </Button>
+                        )}
                         
                         <Button asChild variant="ghost" size="sm" className="h-8 text-primary hover:text-primary/90 hover:bg-primary/10">
                           <Link href={`/invoice/${invoice.short_token || invoice.secure_token}`} target="_blank">
@@ -171,6 +178,11 @@ export default async function InvoicesPage() {
                               total={total}
                               currency={invoice.currency}
                             />
+                          )}
+                          {invoice.status !== 'paid' && (
+                            <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                               <Link href={`/dashboard/invoices/${invoice.id}/edit`}>Edit</Link>
+                            </Button>
                           )}
                           
                           <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-primary hover:text-primary/90 hover:bg-primary/10">
