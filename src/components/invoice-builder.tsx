@@ -29,7 +29,7 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
   );
   
   const addItem = () => setItems([...items, { id: Date.now(), description: "", quantity: 1, price: 0 }]);
-  const removeItem = (id: number) => setItems(items.filter(i => i.id !== id));
+  const removeItem = (id: number) => setItems(items.filter((i: any) => i.id !== id));
   
   const updateItem = (id: number, field: string, value: string | number) => {
     setItems(items.map((i: any) => i.id === id ? { ...i, [field]: value } : i));
