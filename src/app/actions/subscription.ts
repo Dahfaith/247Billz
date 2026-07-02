@@ -23,23 +23,16 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
 
   if (!business) throw new Error("Business profile not found")
 
-  if (business.subscription_tier === tier) {
-    throw new Error(`You are already on the ${tier} plan.`);
-  }
-
   const tierRanks = { free: 0, starter: 1, pro: 2, business: 3 };
   const currentRank = tierRanks[(business.subscription_tier as keyof typeof tierRanks) || 'free'];
   const targetRank = tierRanks[tier];
 
-  // If downgrading, just update the database for free
+  if (currentRank === targetRank) {
+    redirect(`/dashboard/billing?error=You+are+already+on+the+${encodeURIComponent(tier)}+plan`);
+  }
+
   if (targetRank < currentRank) {
-    const { error } = await supabase
-      .from('businesses')
-      .update({ subscription_tier: tier })
-      .eq('id', business.id);
-      
-    if (error) throw new Error("Failed to downgrade plan");
-    redirect('/dashboard/billing?success=true&downgraded=true');
+    redirect('/dashboard/billing?error=Downgrades+are+not+supported+through+the+portal');
   }
 
   // 2. Map tier to price

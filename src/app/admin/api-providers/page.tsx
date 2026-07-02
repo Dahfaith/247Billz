@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { KeyRound, Shield, EyeOff, Save, CheckCircle2 } from 'lucide-react'
+import { KeyRound, Shield, Save, CheckCircle2 } from 'lucide-react'
 import { SubmitButton } from '@/components/submit-button'
+import { PasswordField } from '@/components/password-field'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,12 +55,11 @@ export default async function AdminApiProvidersPage() {
                         <span className="text-[#F59E0B] text-xs flex items-center gap-1">Not Configured</span>
                       )}
                     </Label>
-                    <div className="relative">
-                      <Input name="paystack_secret_key" type="password" defaultValue={data.paystack_secret_key || ""} placeholder="sk_live_..." className="font-mono text-xs pr-10" />
-                      <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
-                        <EyeOff className="w-4 h-4 text-slate-400" />
-                      </Button>
-                    </div>
+                    <PasswordField
+                      name="paystack_secret_key"
+                      defaultValue={data.paystack_secret_key || ""}
+                      placeholder="sk_live_..."
+                    />
                   </div>
                 </CardContent>
                 <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-[#E2E8F0] dark:border-slate-800">
@@ -95,12 +95,11 @@ export default async function AdminApiProvidersPage() {
                         <span className="text-[#F59E0B] text-xs flex items-center gap-1">Not Configured</span>
                       )}
                     </Label>
-                    <div className="relative">
-                      <Input name="flutterwave_secret_key" type="password" defaultValue={data.flutterwave_secret_key || ""} placeholder="FLWSECK_..." className="font-mono text-xs pr-10" />
-                      <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
-                        <EyeOff className="w-4 h-4 text-slate-400" />
-                      </Button>
-                    </div>
+                    <PasswordField
+                      name="flutterwave_secret_key"
+                      defaultValue={data.flutterwave_secret_key || ""}
+                      placeholder="FLWSECK_..."
+                    />
                   </div>
                 </CardContent>
                 <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-[#E2E8F0] dark:border-slate-800">
@@ -141,12 +140,11 @@ export default async function AdminApiProvidersPage() {
                         <span className="text-[#F59E0B] text-xs flex items-center gap-1">Not Configured</span>
                       )}
                     </Label>
-                    <div className="relative">
-                      <Input name="resend_api_key" type="password" defaultValue={data.resend_api_key || ""} placeholder="re_..." className="font-mono text-xs pr-10" />
-                      <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
-                        <EyeOff className="w-4 h-4 text-slate-400" />
-                      </Button>
-                    </div>
+                    <PasswordField
+                      name="resend_api_key"
+                      defaultValue={data.resend_api_key || ""}
+                      placeholder="re_..."
+                    />
                   </div>
                 </CardContent>
                 <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-[#E2E8F0] dark:border-slate-800">
