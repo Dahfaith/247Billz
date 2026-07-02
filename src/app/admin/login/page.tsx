@@ -104,15 +104,15 @@ export default function AdminLoginPage() {
                 <Input 
                   type="text" 
                   required 
-                  maxLength={6}
+                  maxLength={8}
                   value={code}
                   onChange={e => setCode(e.target.value)}
                   placeholder="000000" 
-                  className="bg-slate-900 border-slate-800 text-white h-14 text-center text-2xl tracking-[0.5em] font-mono focus-visible:ring-orange-500"
+                  className="bg-slate-900 border-slate-800 text-white h-14 text-center text-2xl tracking-[0.2em] font-mono focus-visible:ring-orange-500"
                 />
               </div>
               
-              <Button type="submit" disabled={loading || code.length !== 6} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-medium text-base">
+              <Button type="submit" disabled={loading || code.length < 6} className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-medium text-base">
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Login'}
               </Button>
               
