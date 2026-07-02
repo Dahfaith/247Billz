@@ -116,7 +116,15 @@ export default function AdminLoginPage() {
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Login'}
               </Button>
               
-              <div className="text-center mt-6">
+              <div className="flex flex-col items-center gap-3 mt-6">
+                <button 
+                  type="button" 
+                  onClick={handleSendCode}
+                  disabled={loading}
+                  className="text-sm text-orange-500 hover:text-orange-400 transition-colors font-medium disabled:opacity-50"
+                >
+                  Didn't receive a code? Resend
+                </button>
                 <button 
                   type="button" 
                   onClick={() => setStep('email')} 
