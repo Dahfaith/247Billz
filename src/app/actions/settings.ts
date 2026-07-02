@@ -138,14 +138,15 @@ export async function saveBankDetails(formData: FormData) {
 
     const accountName = verifyData.data.account_name.toLowerCase()
 
-    const fnToken = fullName.split(' ')[0]?.toLowerCase()
-    const bnToken = businessName.split(' ')[0]?.toLowerCase()
-
-    const isFullNameMatch = fnToken && accountName.includes(fnToken)
-    const isBusinessNameMatch = bnToken && accountName.includes(bnToken)
+    // Extract all words longer than 2 characters from fullName and businessName
+    const getTokens = (name: string) => name.toLowerCase().split(/\s+/).filter(w => w.length > 2)
+    const nameTokens = [...getTokens(fullName), ...getTokens(businessName)]
+    
+    // Check if at least one significant word from their profile or business name is in the bank account name
+    const isMatch = nameTokens.some(token => accountName.includes(token))
     const isTestAccount = process.env.NODE_ENV !== 'production' && accountName.includes("forrest green")
 
-    if (!isFullNameMatch && !isBusinessNameMatch && !isTestAccount) {
+    if (!isMatch && !isTestAccount) {
       return { success: false, error: `Verification failed. The bank account name "${verifyData.data.account_name}" does not match your Profile Name or Business Name.` }
     }
 

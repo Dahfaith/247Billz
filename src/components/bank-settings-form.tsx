@@ -17,7 +17,8 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<Feedback>(null)
   const [localBusiness, setLocalBusiness] = useState<any>(business)
-  const hasBankSetup = !!localBusiness?.flutterwave_subaccount_id
+  const [isEditing, setIsEditing] = useState(false)
+  const hasBankSetup = !!localBusiness?.flutterwave_subaccount_id && !isEditing
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -35,6 +36,7 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
             bank_name: res.bankName,
             account_number: res.accountNumber,
           }))
+          setIsEditing(false)
           setFeedback({ message, variant: "success" })
           toast.success(message)
           return
@@ -72,12 +74,15 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
           <div className="flex flex-col items-center justify-center py-8 text-center bg-green-50/50 rounded-xl border border-green-100">
             <CheckCircle2 className="w-12 h-12 text-green-500 mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 mb-2">Payout Account Configured</h3>
-            <p className="text-slate-600 max-w-sm mb-4">
-              Your payments are automatically routed to your <strong>{localBusiness.bank_name}</strong> account ending in <strong>{localBusiness.account_number.slice(-4)}</strong>.
+            <p className="text-slate-600 max-w-sm mb-6">
+              Your payments are automatically routed to your <strong>{localBusiness.bank_name}</strong> account ending in <strong>{localBusiness.account_number?.slice(-4)}</strong>.
             </p>
-            <p className="text-xs text-slate-400">
-              To change your payout account, please <a href="mailto:247billzsupport@gmail.com" className="text-primary hover:underline font-medium">contact support</a>.
-            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditing(true)}
+            >
+              Change Bank Details
+            </Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
@@ -110,9 +115,16 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
               <p className="text-xs text-muted-foreground mt-1">Must be 10 digits. The name on the account must closely match your Name or Business Name.</p>
             </div>
 
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white" disabled={isPending}>
-              {isPending ? "Verifying Account & Setting Up..." : "Verify & Save Bank Details"}
-            </Button>
+            <div className="flex gap-3">
+              <Button type="submit" disabled={isPending} className="flex-1">
+                {isPending ? "Verifying..." : "Verify & Save Bank Details"}
+              </Button>
+              {!!localBusiness?.flutterwave_subaccount_id && (
+                <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+              )}
+            </div>
 
             {feedback ? (
               <Alert variant={feedback.variant} className="mt-4">
