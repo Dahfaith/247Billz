@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpRight, FileText, Receipt, Users, Clock, Plus, Zap, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
-import { DashboardRevenueChart } from "@/components/dashboard-charts";
+import { DashboardRevenueChart, DashboardStatusChart } from "@/components/dashboard-charts";
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
 import Link from "next/link";
@@ -304,6 +304,22 @@ export default async function DashboardPage() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mt-6">
+        <Card className="col-span-1 md:col-span-2 lg:col-span-3 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl overflow-hidden">
+          <CardHeader>
+            <CardTitle>Invoice Status</CardTitle>
+            <CardDescription>Breakdown of all your generated invoices.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DashboardStatusChart data={[
+              { name: 'Paid', value: invoices?.filter(i => i.status === 'paid').length || 0, color: '#10B981' },
+              { name: 'Pending', value: invoices?.filter(i => i.status === 'pending' || i.status === 'draft').length || 0, color: '#F59E0B' },
+              { name: 'Overdue', value: invoices?.filter(i => i.status === 'overdue').length || 0, color: '#EF4444' }
+            ]} />
           </CardContent>
         </Card>
       </div>

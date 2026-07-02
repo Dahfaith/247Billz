@@ -4,7 +4,7 @@ import { AdminDashboardClient } from './admin-dashboard-client'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const { success, stats, recentRegistrations, recentTransactions } = await getAdminDashboardStats()
+  const { success, stats, recentRegistrations, recentTransactions, chartData } = await getAdminDashboardStats()
 
   if (!success) {
     return (
@@ -19,6 +19,7 @@ export default async function AdminDashboardPage() {
       stats={stats} 
       recentRegistrations={recentRegistrations || []} 
       recentTransactions={recentTransactions || []} 
+      chartData={chartData || []}
     />
   )
 }

@@ -52,12 +52,33 @@ export async function getAdminDashboardStats() {
     let failedTransactionsCount = 0
     let todayTransactionsCount = 0
 
+    // Initialize chart data for 12 months
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const now = new Date();
+    const chartData: any[] = [];
+    
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      chartData.push({
+        name: monthNames[d.getMonth()],
+        year: d.getFullYear(),
+        month: d.getMonth(),
+        total: 0
+      });
+    }
+
     allPayments?.forEach((payment) => {
       const paymentDate = new Date(payment.created_at)
       
       if (payment.status === 'successful' || payment.status === 'paid') {
         if (paymentDate >= thirtyDaysAgo) {
           monthlyRevenue += Number(payment.amount || 0)
+        }
+        
+        // Add to chart data if within last 12 months
+        const targetMonth = chartData.find(m => m.month === paymentDate.getMonth() && m.year === paymentDate.getFullYear());
+        if (targetMonth) {
+          targetMonth.total += Number(payment.amount || 0);
         }
       } else if (payment.status === 'pending') {
         pendingPaymentsCount++
@@ -95,6 +116,7 @@ export async function getAdminDashboardStats() {
         failedTransactionsCount,
         todayTransactionsCount,
       },
+      chartData,
       recentRegistrations: recentRegistrations || [],
       recentTransactions: recentTransactions || []
     }

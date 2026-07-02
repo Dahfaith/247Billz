@@ -52,3 +52,55 @@ export function DashboardRevenueChart({ data, currencySymbol = "₦" }: { data: 
     </ResponsiveContainer>
   )
 }
+
+import { PieChart, Pie, Cell, Legend } from "recharts"
+
+export function DashboardStatusChart({ data }: { data: { name: string, value: number, color: string }[] }) {
+  if (data.every(d => d.value === 0)) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[300px] text-slate-500">
+        <p>No invoice data available</p>
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          innerRadius={80}
+          outerRadius={110}
+          paddingAngle={5}
+          dataKey="value"
+          stroke="none"
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
+        <Tooltip 
+          contentStyle={{ 
+            borderRadius: '12px', 
+            border: 'none', 
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+            padding: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(8px)'
+          }}
+          itemStyle={{ fontWeight: 600, color: '#0F172A' }}
+          labelStyle={{ display: 'none' }}
+          formatter={(value: any, name: any) => [value, name]}
+        />
+        <Legend 
+          verticalAlign="bottom" 
+          height={36}
+          iconType="circle"
+          formatter={(value, entry: any) => <span style={{ color: '#64748B', fontWeight: 500, marginRight: '10px' }}>{value}</span>}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  )
+}

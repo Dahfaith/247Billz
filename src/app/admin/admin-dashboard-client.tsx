@@ -1,19 +1,29 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Building2, Users, CreditCard, Activity, ArrowUpRight, TrendingDown } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
 
 export function AdminDashboardClient({ 
   stats, 
   recentRegistrations, 
-  recentTransactions 
+  recentTransactions,
+  chartData
 }: {
   stats: any,
   recentRegistrations: any[],
-  recentTransactions: any[]
+  recentTransactions: any[],
+  chartData: any[]
 }) {
+  const [chartRange, setChartRange] = useState<'3m' | '6m' | '12m'>('6m')
+
+  // Calculate displayed chart data based on selected range
+  const displayChartData = chartData?.slice(
+    chartRange === '3m' ? 9 : chartRange === '6m' ? 6 : 0
+  ) || [];
   const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
@@ -136,6 +146,97 @@ export function AdminDashboardClient({
             </CardContent>
           </Card>
         </motion.div>
+      </motion.div>
+
+      {/* Revenue Chart Section */}
+      <motion.div variants={itemVariants}>
+        <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg rounded-2xl overflow-hidden relative">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800/60 bg-white/30 dark:bg-[#0F172A]/30">
+            <div>
+              <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Platform Revenue</CardTitle>
+              <CardDescription className="text-sm font-medium mt-1">Total processing volume across all businesses.</CardDescription>
+            </div>
+            <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-lg mt-4 sm:mt-0">
+              <button 
+                onClick={() => setChartRange('3m')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${chartRange === '3m' ? 'bg-white dark:bg-slate-700 text-[#F97316] shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                3 Months
+              </button>
+              <button 
+                onClick={() => setChartRange('6m')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${chartRange === '6m' ? 'bg-white dark:bg-slate-700 text-[#F97316] shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                6 Months
+              </button>
+              <button 
+                onClick={() => setChartRange('12m')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${chartRange === '12m' ? 'bg-white dark:bg-slate-700 text-[#F97316] shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                12 Months
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6 pb-2 pr-6 pl-2">
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={displayChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F97316" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#F97316" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#94A3B8" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    dy={10}
+                  />
+                  <YAxis 
+                    stroke="#94A3B8" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    width={80}
+                    tickFormatter={(value) => {
+                      if (value >= 1000000) return `₦${(value / 1000000).toFixed(1)}M`;
+                      if (value >= 1000) return `₦${(value / 1000).toFixed(0)}k`;
+                      return `₦${value}`;
+                    }} 
+                    dx={-10}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      borderRadius: '12px', 
+                      border: '1px solid rgba(255,255,255,0.2)', 
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                      padding: '12px',
+                      backgroundColor: 'rgba(255,255,255,0.9)',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                    itemStyle={{ color: '#F97316', fontWeight: 700 }}
+                    formatter={(value: any) => [`₦${Number(value).toLocaleString()}`, 'Total Revenue']}
+                    labelStyle={{ color: '#64748B', marginBottom: '4px', fontWeight: 600 }}
+                    cursor={{ stroke: '#F97316', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.5 }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="total" 
+                    stroke="#F97316" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorTotal)" 
+                    activeDot={{ r: 6, fill: "#F97316", stroke: "#fff", strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Tables Section */}
