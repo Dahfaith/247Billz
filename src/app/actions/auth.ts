@@ -97,7 +97,7 @@ export async function verifyAdminOtp(email: string, token: string) {
   const supabase = await createClient()
   const { error } = await supabase.auth.verifyOtp({
     email,
-    token,
+    token: token.trim(),
     type: 'email',
   })
 
