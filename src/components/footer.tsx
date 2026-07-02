@@ -6,7 +6,13 @@ import { Smartphone } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
-  if (pathname?.startsWith('/dashboard')) return null;
+  const hideFooter = pathname?.startsWith('/dashboard') || 
+                     pathname?.startsWith('/admin') ||
+                     pathname?.startsWith('/invoice') ||
+                     pathname?.startsWith('/quotation') ||
+                     pathname?.startsWith('/receipt');
+
+  if (hideFooter) return null;
 
   return (
     <footer className="border-t border-border bg-background pt-20 pb-10">
