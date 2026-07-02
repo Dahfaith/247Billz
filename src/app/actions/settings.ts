@@ -4,18 +4,19 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
-async function getFlutterwaveSecretKey() {
-  if (process.env.FLW_SECRET_KEY) {
-    return process.env.FLW_SECRET_KEY
-  }
-
+export async function getFlutterwaveSecretKey() {
   const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
   const { data, error } = await supabaseAdmin.from('platform_settings').select('flutterwave_secret_key').limit(1).maybeSingle()
-  if (error) {
-    throw new Error(`Unable to load payment gateway settings: ${error.message}`)
+
+  if (data?.flutterwave_secret_key) {
+    return data.flutterwave_secret_key
   }
 
-  return data?.flutterwave_secret_key || null
+  if (error) {
+    console.error(`Unable to load payment gateway settings: ${error.message}`)
+  }
+
+  return process.env.FLW_SECRET_KEY || null
 }
 
 export async function fetchBanks() {

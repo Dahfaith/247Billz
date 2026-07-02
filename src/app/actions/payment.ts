@@ -5,11 +5,12 @@ import { getSiteUrl } from '@/lib/site-url'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY
-
+import { getFlutterwaveSecretKey } from './settings'
 export async function initiatePayment(invoiceToken: string) {
+  const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
+
   if (!FLW_SECRET_KEY) {
-    return { error: 'Payment gateway is not configured. Please set FLW_SECRET_KEY.' }
+    return { error: 'Payment gateway is not configured. Please set FLW_SECRET_KEY in Admin dashboard.' }
   }
 
   const supabase = await createClient()

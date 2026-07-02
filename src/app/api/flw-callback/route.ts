@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getSiteUrl } from '@/lib/site-url'
 
-const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
+import { getFlutterwaveSecretKey } from '@/app/actions/settings'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -12,8 +12,12 @@ export async function GET(request: NextRequest) {
   if (!transactionId) {
     return NextResponse.redirect(`${baseUrl}/dashboard?message=Payment+Cancelled`)
   }
-
   try {
+    const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
+    if (!FLW_SECRET_KEY) {
+      return NextResponse.redirect(`${baseUrl}/dashboard?message=Payment+Gateway+Error`)
+    }
+
     const verifyRes = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
       method: "GET",
       headers: {

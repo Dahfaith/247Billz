@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { CheckCircle2, Zap, CreditCard, Clock, ShieldCheck } from "lucide-react"
+import { Building2, CheckCircle2, ChevronRight, CreditCard, Lock, ShieldCheck, Zap, Clock } from 'lucide-react'
+import { getFlutterwaveSecretKey } from '@/app/actions/settings'
 import { Button } from "@/components/ui/button"
 import { initiateSubscriptionUpgrade } from "@/app/actions/subscription"
 
@@ -54,9 +55,10 @@ export default async function BillingPage({ searchParams }: { searchParams?: { e
   // Fetch Subscription Transactions from Flutterwave
   let flwTransactions: any[] = []
   try {
-    if (process.env.FLW_SECRET_KEY) {
+    const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
+    if (FLW_SECRET_KEY) {
       const res = await fetch(`https://api.flutterwave.com/v3/transactions`, {
-        headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` },
+        headers: { Authorization: `Bearer ${FLW_SECRET_KEY}` },
         next: { revalidate: 0 } // Always fetch fresh
       })
       const flwData = await res.json()
