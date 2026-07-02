@@ -51,6 +51,8 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
     })
   }
 
+  const validBanks = banks.filter((bank) => /^[0-9]{3}$/.test(String(bank.code)))
+
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
       <div className="p-6 border-b border-border">
@@ -88,8 +90,8 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
                 required
               >
                 <option value="">Select a Nigerian Bank...</option>
-                {banks.map((bank) => (
-                  <option key={bank.code} value={bank.code}>{bank.name}</option>
+                {validBanks.map((bank) => (
+                  <option key={bank.code} value={bank.code}>{bank.name} ({bank.code})</option>
                 ))}
               </select>
             </div>

@@ -42,11 +42,21 @@ export async function saveBankDetails(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
-    const bankCode = formData.get('bankCode') as string
-    const accountNumber = formData.get('accountNumber') as string
+    const bankCodeRaw = String(formData.get('bankCode') || "")
+    const accountNumberRaw = String(formData.get('accountNumber') || "")
+    const bankCode = bankCodeRaw.trim()
+    const accountNumber = accountNumberRaw.replace(/\D/g, "").trim()
 
     if (!bankCode || !accountNumber) {
-      return { success: false, error: "Bank and Account Number are required" }
+      return { success: false, error: "Bank and Account Number are required." }
+    }
+
+    if (!/^[0-9]{3}$/.test(bankCode)) {
+      return { success: false, error: "Please select a bank from the dropdown. The bank code must be a 3-digit number." }
+    }
+
+    if (!/^[0-9]{10}$/.test(accountNumber)) {
+      return { success: false, error: "Please enter a valid 10-digit account number." }
     }
 
     // 1. Fetch Profile and Business
@@ -96,7 +106,14 @@ export async function saveBankDetails(formData: FormData) {
     const verifyData = await verifyRes.json()
 
     if (verifyData.status !== "success") {
-      return { success: false, error: verifyData.message || "Invalid account number or bank" }
+      const providerMessage = String(verifyData.message || "Invalid account number or bank")
+      if (/destbankcode\/account_bank must be numeric/i.test(providerMessage)) {
+        return { success: false, error: "The selected bank code is invalid. Please choose a bank from the dropdown." }
+      }
+      if (/only 044 is allowed/i.test(providerMessage)) {
+        return { success: false, error: "The selected bank code is invalid for this bank. Please pick the correct bank from the dropdown." }
+      }
+      return { success: false, error: providerMessage }
     }
 
     const accountName = verifyData.data.account_name.toLowerCase()
