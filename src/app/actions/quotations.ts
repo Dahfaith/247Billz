@@ -31,6 +31,9 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
   const issue_date = formData.get('issue_date') as string
   const valid_until = formData.get('valid_until') as string
   const notes = formData.get('notes') as string
+  
+  const taxRate = parseFloat(formData.get('tax_rate') as string) || 0;
+  const discountRate = parseFloat(formData.get('discount_rate') as string) || 0;
 
   const randomSuffix = Math.floor(100000 + Math.random() * 900000);
   const quotation_number = `EST-${randomSuffix}`;
@@ -48,6 +51,8 @@ export async function createQuotationAction(formData: FormData, items: any[]) {
       issue_date,
       valid_until,
       notes,
+      tax_rate: taxRate,
+      discount_rate: discountRate,
       short_token
     })
     .select('*')

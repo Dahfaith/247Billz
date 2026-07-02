@@ -48,8 +48,13 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
   const isOwner = user?.id && quote.business?.owner_id ? user.id === quote.business.owner_id : false
 
   const subtotal = quote.items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
-  const tax = subtotal * (quote.tax_rate / 100);
-  const total = subtotal + tax;
+  const discountRate = Number(quote.discount_rate) || 0;
+  const discountAmount = subtotal * (discountRate / 100);
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  
+  const taxRate = Number(quote.tax_rate) || 0;
+  const tax = subtotalAfterDiscount * (taxRate / 100);
+  const total = subtotalAfterDiscount + tax;
 
   const isProOrBusiness = quote.business?.subscription_tier === 'pro' || quote.business?.subscription_tier === 'business';
   const showLogo = isProOrBusiness && quote.business?.logo_url;
@@ -184,10 +189,18 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
                 <span>Subtotal</span>
                 <span>{formatCurrency(subtotal, quote.currency)}</span>
               </div>
-              <div className="flex justify-between text-slate-600 text-sm">
-                <span>Tax ({quote.tax_rate}%)</span>
-                <span>{formatCurrency(tax, quote.currency)}</span>
-              </div>
+              {discountRate > 0 && (
+                <div className="flex justify-between text-slate-600 text-sm">
+                  <span>Discount ({discountRate}%)</span>
+                  <span>-{formatCurrency(discountAmount, quote.currency)}</span>
+                </div>
+              )}
+              {taxRate > 0 && (
+                <div className="flex justify-between text-slate-600 text-sm">
+                  <span>Tax ({taxRate}%)</span>
+                  <span>{formatCurrency(tax, quote.currency)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-xl pt-3 border-t border-slate-200">
                 <span className="text-slate-900">Total</span>
                 <span className="text-primary">{formatCurrency(total, quote.currency)}</span>

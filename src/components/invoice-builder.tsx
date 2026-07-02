@@ -22,6 +22,8 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
 
   const [issueDate, setIssueDate] = useState(invoice?.issue_date || new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState(invoice?.due_date || "");
+  const [taxRate, setTaxRate] = useState(invoice?.tax_rate || 0);
+  const [discountRate, setDiscountRate] = useState(invoice?.discount_rate || 0);
   const [items, setItems] = useState(
     invoice?.items?.length > 0 
       ? invoice.items.map((i: any, index: number) => ({ id: i.id || index, description: i.description, quantity: i.quantity, price: i.price }))
@@ -36,8 +38,10 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
   };
 
   const subtotal = items.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0);
-  const tax = subtotal * 0; // Fixed at 0 for now
-  const total = subtotal + tax;
+  const discountAmount = subtotal * (discountRate / 100);
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  const taxAmount = subtotalAfterDiscount * (taxRate / 100); 
+  const total = subtotalAfterDiscount + taxAmount;
 
   const [isPending, startTransition] = useTransition();
 
@@ -56,6 +60,8 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
         formData.append("issueDate", issueDate);
         formData.append("dueDate", dueDate);
         formData.append("currency", currency);
+        formData.append("tax_rate", taxRate.toString());
+        formData.append("discount_rate", discountRate.toString());
         formData.append("items", JSON.stringify(items));
         if (invoice?.id) {
           formData.append("id", invoice.id);
@@ -176,6 +182,17 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
           </div>
         </div>
 
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="discountRate">Discount (%)</Label>
+            <Input id="discountRate" type="number" min="0" max="100" value={discountRate} onChange={(e) => setDiscountRate(Number(e.target.value))} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="taxRate">Tax / VAT (%)</Label>
+            <Input id="taxRate" type="number" min="0" max="100" value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} />
+          </div>
+        </div>
+
         <div className="pt-6 border-t border-border flex justify-between items-center">
           <div className="text-sm text-muted-foreground">
             Make sure all details are correct.
@@ -280,10 +297,18 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal, currency)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-slate-500">
-                  <span>Tax (0%)</span>
-                  <span>{formatCurrency(0, currency)}</span>
-                </div>
+                {discountRate > 0 && (
+                  <div className="flex justify-between text-sm text-slate-500">
+                    <span>Discount ({discountRate}%)</span>
+                    <span>-{formatCurrency(discountAmount, currency)}</span>
+                  </div>
+                )}
+                {taxRate > 0 && (
+                  <div className="flex justify-between text-sm text-slate-500">
+                    <span>Tax ({taxRate}%)</span>
+                    <span>{formatCurrency(taxAmount, currency)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-lg font-bold text-slate-900 pt-3 border-t border-slate-200">
                   <span>Total Due</span>
                   <span className="text-primary">{formatCurrency(total, currency)}</span>

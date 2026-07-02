@@ -61,6 +61,9 @@ export async function createInvoice(formData: FormData) {
   const dueDate = formData.get('dueDate') as string
   const currency = (formData.get('currency') as string) || 'NGN'
   
+  const taxRate = parseFloat(formData.get('tax_rate') as string) || 0;
+  const discountRate = parseFloat(formData.get('discount_rate') as string) || 0;
+  
   // Parse the items array (we'll send it as a JSON string from the client)
   const itemsJson = formData.get('items') as string
   const items = JSON.parse(itemsJson)

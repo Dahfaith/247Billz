@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   const { data: invoices } = await supabase
     .from('invoices')
     .select(`
-      id, invoice_number, status, created_at,
+      id, invoice_number, status, created_at, tax_rate, discount_rate,
       client:clients(name),
       items:invoice_items(quantity, price)
     `)
@@ -58,7 +58,11 @@ export default async function DashboardPage() {
   let totalOutstanding = 0;
   
   invoices?.forEach(inv => {
-    const invTotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+    const subtotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+    const discountRate = Number(inv.discount_rate) || 0;
+    const subtotalAfterDiscount = subtotal - (subtotal * (discountRate / 100));
+    const taxRate = Number(inv.tax_rate) || 0;
+    const invTotal = subtotalAfterDiscount + (subtotalAfterDiscount * (taxRate / 100));
     if (inv.status === 'paid') {
       totalRevenue += invTotal;
     } else {
@@ -82,7 +86,11 @@ export default async function DashboardPage() {
     paidInvoices.forEach(inv => {
       const invDate = new Date(inv.created_at);
       if (invDate.getMonth() === d.getMonth() && invDate.getFullYear() === d.getFullYear()) {
-        const invTotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+        const subtotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+        const discountRate = Number(inv.discount_rate) || 0;
+        const subtotalAfterDiscount = subtotal - (subtotal * (discountRate / 100));
+        const taxRate = Number(inv.tax_rate) || 0;
+        const invTotal = subtotalAfterDiscount + (subtotalAfterDiscount * (taxRate / 100));
         monthTotal += invTotal;
       }
     });
@@ -95,7 +103,11 @@ export default async function DashboardPage() {
   
   // Add recent invoices
   invoices?.slice(0, 5).forEach(inv => {
-    const invTotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+    const subtotal = inv.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0;
+    const discountRate = Number(inv.discount_rate) || 0;
+    const subtotalAfterDiscount = subtotal - (subtotal * (discountRate / 100));
+    const taxRate = Number(inv.tax_rate) || 0;
+    const invTotal = subtotalAfterDiscount + (subtotalAfterDiscount * (taxRate / 100));
     const clientName = (inv.client as any)?.name || 'Client';
     
     recentActivity.push({

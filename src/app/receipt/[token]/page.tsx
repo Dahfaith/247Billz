@@ -39,8 +39,13 @@ export default async function PublicReceiptPage({
   }
 
   const subtotal = items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
-  const tax = subtotal * (invoice.tax_rate / 100);
-  const total = subtotal + tax;
+  const discountRate = Number(invoice.discount_rate) || 0;
+  const discountAmount = subtotal * (discountRate / 100);
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  
+  const taxRate = Number(invoice.tax_rate) || 0;
+  const tax = subtotalAfterDiscount * (taxRate / 100);
+  const total = subtotalAfterDiscount + tax;
 
   const receiptNumber = `RCPT-${invoice.invoice_number.replace('INV-', '')}`;
 
@@ -162,16 +167,16 @@ export default async function PublicReceiptPage({
                 <span>Subtotal</span>
                 <span>₦{subtotal.toLocaleString()}</span>
               </div>
-              {invoice.tax_rate > 0 && (
+              {discountRate > 0 && (
                 <div className="flex justify-between text-slate-500">
-                  <span>Tax ({invoice.tax_rate}%)</span>
-                  <span>₦{tax.toLocaleString()}</span>
+                  <span>Discount ({discountRate}%)</span>
+                  <span>- ₦{discountAmount.toLocaleString()}</span>
                 </div>
               )}
-              {invoice.discount_rate > 0 && (
+              {taxRate > 0 && (
                 <div className="flex justify-between text-slate-500">
-                  <span>Discount</span>
-                  <span>- ₦{(subtotal * (invoice.discount_rate/100)).toLocaleString()}</span>
+                  <span>Tax ({taxRate}%)</span>
+                  <span>₦{tax.toLocaleString()}</span>
                 </div>
               )}
               <div className="flex justify-between text-2xl font-bold text-slate-900 pt-4 border-t border-slate-200">

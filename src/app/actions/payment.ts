@@ -39,9 +39,14 @@ export async function initiatePayment(invoiceToken: string) {
   // 2. Fetch Items to calculate exact total
   const { data: items } = await supabase.from('invoice_items').select('*').eq('invoice_id', invoice.id)
   const subtotal = items?.reduce((acc: any, item: any) => acc + (item.quantity * item.price), 0) || 0
+  
+  const discountRate = Number(invoice.discount_rate) || 0
+  const discountAmount = subtotal * (discountRate / 100)
+  const subtotalAfterDiscount = subtotal - discountAmount
+  
   const taxRate = Number(invoice.tax_rate) || 0
-  const tax = subtotal * (taxRate / 100)
-  const total = subtotal + tax
+  const tax = subtotalAfterDiscount * (taxRate / 100)
+  const total = subtotalAfterDiscount + tax
 
   // 3. Generate a unique transaction reference
   const txRef = `TXN-${invoice.invoice_number}-${Date.now()}`
@@ -114,7 +119,7 @@ export async function confirmCashPayment(formData: FormData) {
 
   const { data: invoice, error: invoiceFetchError } = await supabase
     .from('invoices')
-    .select('id, invoice_number, status, business_id, currency, secure_token, short_token')
+    .select('id, invoice_number, status, business_id, currency, secure_token, short_token, tax_rate, discount_rate')
     .eq('id', invoiceId)
     .single()
 
@@ -135,7 +140,14 @@ export async function confirmCashPayment(formData: FormData) {
     throw new Error(itemsError.message)
   }
 
-  const total = items?.reduce((acc: number, item: any) => acc + (Number(item.quantity) * Number(item.price)), 0) || 0
+  const subtotal = items?.reduce((acc: number, item: any) => acc + (Number(item.quantity) * Number(item.price)), 0) || 0
+  const discountRate = Number(invoice.discount_rate) || 0
+  const discountAmount = subtotal * (discountRate / 100)
+  const subtotalAfterDiscount = subtotal - discountAmount
+  
+  const taxRate = Number(invoice.tax_rate) || 0
+  const tax = subtotalAfterDiscount * (taxRate / 100)
+  const total = subtotalAfterDiscount + tax
 
   const { error: invoiceUpdateError } = await supabase
     .from('invoices')

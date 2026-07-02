@@ -32,8 +32,17 @@ export function QuotationForm({ clients }: { clients: any[] }) {
     setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
+  const [taxRate, setTaxRate] = useState(0);
+  const [discountRate, setDiscountRate] = useState(0);
+
+  const calculateSubtotal = () => items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  
   const calculateTotal = () => {
-    return items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const subtotal = calculateSubtotal();
+    const discountAmount = subtotal * (discountRate / 100);
+    const subtotalAfterDiscount = subtotal - discountAmount;
+    const taxAmount = subtotalAfterDiscount * (taxRate / 100);
+    return subtotalAfterDiscount + taxAmount;
   };
 
   async function handleSubmit(formData: FormData) {
@@ -174,11 +183,40 @@ export function QuotationForm({ clients }: { clients: any[] }) {
             Add Item
           </Button>
 
-          <div className="border-t border-border pt-4 mt-6 flex justify-end">
-            <div className="w-full sm:w-1/3 space-y-2">
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total:</span>
-                <span>₦{calculateTotal().toLocaleString()}</span>
+          <div className="border-t border-border pt-4 mt-6">
+            <div className="grid sm:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-2">
+                <Label htmlFor="discount_rate">Discount (%)</Label>
+                <Input id="discount_rate" name="discount_rate" type="number" min="0" max="100" value={discountRate} onChange={(e) => setDiscountRate(Number(e.target.value))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tax_rate">Tax / VAT (%)</Label>
+                <Input id="tax_rate" name="tax_rate" type="number" min="0" max="100" value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} />
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <div className="w-full sm:w-1/3 space-y-2">
+                <div className="flex justify-between text-sm text-slate-500">
+                  <span>Subtotal:</span>
+                  <span>₦{calculateSubtotal().toLocaleString()}</span>
+                </div>
+                {discountRate > 0 && (
+                  <div className="flex justify-between text-sm text-slate-500">
+                    <span>Discount ({discountRate}%):</span>
+                    <span>-₦{(calculateSubtotal() * (discountRate / 100)).toLocaleString()}</span>
+                  </div>
+                )}
+                {taxRate > 0 && (
+                  <div className="flex justify-between text-sm text-slate-500">
+                    <span>Tax ({taxRate}%):</span>
+                    <span>₦{((calculateSubtotal() - (calculateSubtotal() * (discountRate / 100))) * (taxRate / 100)).toLocaleString()}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
+                  <span>Total:</span>
+                  <span>₦{calculateTotal().toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </div>

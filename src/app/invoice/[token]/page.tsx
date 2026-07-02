@@ -84,8 +84,13 @@ export default async function PublicInvoicePage({
   }
 
   const subtotal = items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
-  const tax = subtotal * (invoice.tax_rate / 100);
-  const total = subtotal + tax;
+  const discountRate = Number(invoice.discount_rate) || 0;
+  const discountAmount = subtotal * (discountRate / 100);
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  
+  const taxRate = Number(invoice.tax_rate) || 0;
+  const tax = subtotalAfterDiscount * (taxRate / 100);
+  const total = subtotalAfterDiscount + tax;
 
   const isProOrBusiness = invoice.business?.subscription_tier === 'pro' || invoice.business?.subscription_tier === 'business';
   const showLogo = isProOrBusiness && invoice.business?.logo_url;
@@ -240,16 +245,16 @@ export default async function PublicInvoicePage({
                 <span>Subtotal</span>
                 <span>{formatCurrency(subtotal, invoice.currency)}</span>
               </div>
-              {invoice.tax_rate > 0 && (
+              {discountRate > 0 && (
                 <div className="flex justify-between text-slate-500">
-                  <span>Tax ({invoice.tax_rate}%)</span>
-                  <span>{formatCurrency(tax, invoice.currency)}</span>
+                  <span>Discount ({discountRate}%)</span>
+                  <span>- {formatCurrency(discountAmount, invoice.currency)}</span>
                 </div>
               )}
-              {invoice.discount_rate > 0 && (
+              {taxRate > 0 && (
                 <div className="flex justify-between text-slate-500">
-                  <span>Discount</span>
-                  <span>- {formatCurrency(subtotal * (invoice.discount_rate/100), invoice.currency)}</span>
+                  <span>Tax ({taxRate}%)</span>
+                  <span>{formatCurrency(tax, invoice.currency)}</span>
                 </div>
               )}
               <div className="flex justify-between text-2xl font-bold text-slate-900 pt-4 border-t border-slate-200">
