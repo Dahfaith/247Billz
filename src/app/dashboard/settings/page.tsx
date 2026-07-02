@@ -18,7 +18,17 @@ export default async function SettingsPage() {
     .limit(1)
     .single()
 
-  // Fetch Banks from Flutterwave
+  // Fetch last bank update from audit logs
+  const { data: lastBankLog } = await supabase
+    .from('audit_logs')
+    .select('created_at')
+    .eq('business_id', business?.id)
+    .eq('event_type', 'BANK_DETAILS_UPDATED')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const lastBankUpdate = lastBankLog?.created_at || null
   const banks = await fetchBanks()
   
   // Deduplicate banks by code (Flutterwave sometimes returns duplicates)
@@ -37,7 +47,7 @@ export default async function SettingsPage() {
       <div className="max-w-4xl space-y-8">
         <PersonalSettingsForm user={user} />
         <BusinessSettingsForm business={business} />
-        <BankSettingsForm banks={sortedBanks} business={business} />
+        <BankSettingsForm banks={sortedBanks} business={business} lastBankUpdate={lastBankUpdate} />
         <PasswordSettingsForm />
       </div>
     </div>

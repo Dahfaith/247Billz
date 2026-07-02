@@ -52,8 +52,8 @@ export async function saveBankDetails(formData: FormData) {
       return { success: false, error: "Bank and Account Number are required." }
     }
 
-    if (!/^[0-9]{3}$/.test(bankCode)) {
-      return { success: false, error: "Please select a bank from the dropdown. The bank code must be a 3-digit number." }
+    if (!/^[0-9]+$/.test(bankCode)) {
+      return { success: false, error: "Please select a bank from the dropdown." }
     }
 
     if (!/^[0-9]{10}$/.test(accountNumber)) {
@@ -83,6 +83,23 @@ export async function saveBankDetails(formData: FormData) {
       
       if (bErr) return { success: false, error: `Business DB Error: ${bErr.message}` }
       business = newBusiness
+    }
+
+    // Check 7-day restriction
+    const { data: lastBankLog } = await supabase
+      .from('audit_logs')
+      .select('created_at')
+      .eq('business_id', business.id)
+      .eq('event_type', 'BANK_DETAILS_UPDATED')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (lastBankLog?.created_at) {
+      const daysSinceUpdate = Math.floor((Date.now() - new Date(lastBankLog.created_at).getTime()) / (1000 * 60 * 60 * 24))
+      if (daysSinceUpdate < 7) {
+        return { success: false, error: `For security reasons, bank details can only be changed once every 7 days. Please try again in ${7 - daysSinceUpdate} day(s).` }
+      }
     }
 
     const fullName = user.user_metadata?.full_name || profile?.full_name || ""
@@ -212,6 +229,20 @@ export async function saveBankDetails(formData: FormData) {
     if (updateError) {
       return { success: false, error: `Database error: ${updateError.message}` }
     }
+
+    // Insert Audit Log for admin tracking
+    const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    await supabaseAdmin.from('audit_logs').insert({
+      event_type: 'BANK_DETAILS_UPDATED',
+      user_id: user.id,
+      business_id: business.id,
+      message: `Bank details updated to ${bankName} (${accountNumber})`,
+      meta: {
+        bank_name: bankName,
+        account_number: accountNumber,
+        subaccount_id: subaccountId
+      }
+    })
 
     revalidatePath('/dashboard/settings')
     return {

@@ -13,12 +13,15 @@ type Feedback = {
   variant: "default" | "destructive" | "success"
 } | null
 
-export default function BankSettingsForm({ banks, business }: { banks: any[], business: any }) {
+export default function BankSettingsForm({ banks, business, lastBankUpdate }: { banks: any[], business: any, lastBankUpdate?: string | null }) {
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<Feedback>(null)
   const [localBusiness, setLocalBusiness] = useState<any>(business)
   const [isEditing, setIsEditing] = useState(false)
   const hasBankSetup = !!localBusiness?.flutterwave_subaccount_id && !isEditing
+
+  const daysSinceUpdate = lastBankUpdate ? Math.floor((Date.now() - new Date(lastBankUpdate).getTime()) / (1000 * 60 * 60 * 24)) : 7
+  const canUpdate = daysSinceUpdate >= 7
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -77,9 +80,15 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
             <p className="text-slate-600 max-w-sm mb-6">
               Your payments are automatically routed to your <strong>{localBusiness.bank_name}</strong> account ending in <strong>{localBusiness.account_number?.slice(-4)}</strong>.
             </p>
+            {!canUpdate && (
+              <p className="text-sm text-amber-600 mb-4 bg-amber-50 p-2 rounded-md border border-amber-200">
+                For security reasons, bank details can only be changed once every 7 days. You can change it again in {7 - daysSinceUpdate} day(s).
+              </p>
+            )}
             <Button 
               variant="outline" 
               onClick={() => setIsEditing(true)}
+              disabled={!canUpdate}
             >
               Change Bank Details
             </Button>
