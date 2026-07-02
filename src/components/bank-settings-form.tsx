@@ -4,7 +4,7 @@ import { saveBankDetails } from "@/app/actions/settings"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert } from "@/components/ui/alert"
+import { Alert, AlertTitle } from "@/components/ui/alert"
 import { toast } from "sonner"
 import { Building2, CheckCircle2 } from "lucide-react"
 
@@ -16,7 +16,8 @@ type Feedback = {
 export default function BankSettingsForm({ banks, business }: { banks: any[], business: any }) {
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<Feedback>(null)
-  const hasBankSetup = !!business?.flutterwave_subaccount_id
+  const [localBusiness, setLocalBusiness] = useState<any>(business)
+  const hasBankSetup = !!localBusiness?.flutterwave_subaccount_id
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -28,6 +29,12 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
         const res = await saveBankDetails(formData)
         if (res?.success) {
           const message = `Bank verified as: ${res.accountName}. Subaccount successfully created!`
+          setLocalBusiness((prev: any) => ({
+            ...(prev || {}),
+            flutterwave_subaccount_id: res.subaccountId,
+            bank_name: res.bankName,
+            account_number: res.accountNumber,
+          }))
           setFeedback({ message, variant: "success" })
           toast.success(message)
           return
@@ -64,7 +71,7 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
             <CheckCircle2 className="w-12 h-12 text-green-500 mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 mb-2">Payout Account Configured</h3>
             <p className="text-slate-600 max-w-sm mb-4">
-              Your payments are automatically routed to your <strong>{business.bank_name}</strong> account ending in <strong>{business.account_number.slice(-4)}</strong>.
+              Your payments are automatically routed to your <strong>{localBusiness.bank_name}</strong> account ending in <strong>{localBusiness.account_number.slice(-4)}</strong>.
             </p>
             <p className="text-xs text-slate-400">
               To change your payout account, please <a href="mailto:247billzsupport@gmail.com" className="text-primary hover:underline font-medium">contact support</a>.

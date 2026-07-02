@@ -176,7 +176,13 @@ export async function saveBankDetails(formData: FormData) {
     }
 
     revalidatePath('/dashboard/settings')
-    return { success: true, accountName: verifyData.data.account_name }
+    return {
+      success: true,
+      accountName: verifyData.data.account_name,
+      bankName,
+      accountNumber,
+      subaccountId,
+    }
   } catch (error: any) {
     return { success: false, error: error?.message || 'Failed to verify bank details' }
   }
