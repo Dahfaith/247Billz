@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 import { MobileHeader } from "@/components/mobile-header";
 
 export function Header() {
+  const pathname = usePathname();
+  const hideHeader = pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin');
+
+  if (hideHeader) return null;
+
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border">
       <div className="max-w-7xl mx-auto px-4">

@@ -4,7 +4,7 @@ import { CheckCircle2, Zap, CreditCard, Clock, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { initiateSubscriptionUpgrade } from "@/app/actions/subscription"
 
-export default async function BillingPage() {
+export default async function BillingPage({ searchParams }: { searchParams?: { error?: string, success?: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -74,9 +74,21 @@ export default async function BillingPage() {
 
   return (
     <div className="min-h-screen bg-muted/20 p-4 sm:p-8">
-      <div className="mb-8 max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Billing & Subscriptions</h1>
-        <p className="text-muted-foreground mt-1">Manage your plan, payment methods, and billing history.</p>
+      <div className="mb-8 max-w-5xl mx-auto space-y-4">
+        {searchParams?.error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {decodeURIComponent(searchParams.error)}
+          </div>
+        )}
+        {searchParams?.success && (
+          <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+            Subscription updated successfully.
+          </div>
+        )}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Billing & Subscriptions</h1>
+          <p className="text-muted-foreground mt-1">Manage your plan, payment methods, and billing history.</p>
+        </div>
       </div>
 
       <div className="max-w-5xl mx-auto space-y-8">
@@ -178,12 +190,16 @@ export default async function BillingPage() {
               <div className="flex items-center gap-3"><CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" /><span className="text-sm text-slate-600">Full Analytics</span></div>
               <div className="flex items-center gap-3"><CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" /><span className="text-sm text-slate-600">247Billz Watermark</span></div>
             </div>
-            {currentTier !== 'starter' && (
+            {currentRank < tierRanks.starter ? (
               <form action={async () => { "use server"; await initiateSubscriptionUpgrade('starter'); }} className="w-full">
                 <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                  {currentRank > 1 ? 'Downgrade to Starter' : 'Select Starter'}
+                  Select Starter
                 </Button>
               </form>
+            ) : (
+              <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-slate-600">
+                {currentTier === 'starter' ? 'Current plan' : 'Included in your current plan'}
+              </div>
             )}
           </div>
 
@@ -201,12 +217,16 @@ export default async function BillingPage() {
               <div className="flex items-center gap-3"><CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" /><span className="text-sm text-slate-600">Custom Branding</span></div>
               <div className="flex items-center gap-3"><CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" /><span className="text-sm text-slate-600">Multi-Currency Metrics</span></div>
             </div>
-            {currentTier !== 'pro' && (
+            {currentRank < tierRanks.pro ? (
               <form action={async () => { "use server"; await initiateSubscriptionUpgrade('pro'); }} className="w-full">
                 <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white shadow-md">
-                  {currentRank > 2 ? 'Downgrade to Pro' : 'Select Pro'}
+                  Select Pro
                 </Button>
               </form>
+            ) : (
+              <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-slate-600">
+                {currentTier === 'pro' ? 'Current plan' : 'Included in your current plan'}
+              </div>
             )}
           </div>
 
@@ -221,10 +241,14 @@ export default async function BillingPage() {
               <div className="flex items-center gap-3"><CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" /><span className="text-sm text-slate-600">Multi-Profile Mapping</span></div>
               <div className="flex items-center gap-3"><CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" /><span className="text-sm text-slate-600">API Access</span></div>
             </div>
-            {currentTier !== 'business' && (
+            {currentRank < tierRanks.business ? (
               <form action={async () => { "use server"; await initiateSubscriptionUpgrade('business'); }} className="w-full">
                 <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white">Select Business</Button>
               </form>
+            ) : (
+              <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-slate-600">
+                {currentTier === 'business' ? 'Current plan' : 'Included in your current plan'}
+              </div>
             )}
           </div>
         </div>
