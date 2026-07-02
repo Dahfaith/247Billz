@@ -147,7 +147,7 @@ export async function saveBankDetails(formData: FormData) {
     const isTestAccount = process.env.NODE_ENV !== 'production' && accountName.includes("forrest green")
 
     if (!isMatch && !isTestAccount) {
-      return { success: false, error: `Verification failed. The bank account name "${verifyData.data.account_name}" does not match your Profile Name or Business Name.` }
+      return { success: false, error: "Verification failed. The bank account name does not match your Profile Name or Business Name." }
     }
 
     let subaccountId: string | null = null;
