@@ -105,13 +105,28 @@ export async function saveBankDetails(formData: FormData) {
     })
     const verifyData = await verifyRes.json()
 
+    const providerMessage = [
+      verifyData.message,
+      verifyData.error,
+      verifyData.data?.message,
+      verifyData.data?.error,
+      verifyData.response?.message
+    ]
+      .filter(Boolean)
+      .join(' ') || "Invalid account number or bank"
+
     if (verifyData.status !== "success") {
-      const providerMessage = String(verifyData.message || "Invalid account number or bank")
       if (/destbankcode\/account_bank must be numeric/i.test(providerMessage)) {
-        return { success: false, error: "The selected bank code is invalid. Please choose a bank from the dropdown." }
+        return {
+          success: false,
+          error: "The selected bank code is invalid. Please choose a bank from the dropdown and ensure it is numeric.",
+        }
       }
       if (/only 044 is allowed/i.test(providerMessage)) {
-        return { success: false, error: "The selected bank code is invalid for this bank. Please pick the correct bank from the dropdown." }
+        return {
+          success: false,
+          error: "The payment gateway environment only allows GTBank (code 044) for this verification. Please select GTBank or use a different gateway key.",
+        }
       }
       return { success: false, error: providerMessage }
     }
