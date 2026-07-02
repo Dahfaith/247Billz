@@ -29,29 +29,29 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Product</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="#features" className="hover:text-primary transition-colors">Features</Link></li>
-              <li><Link href="#pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Integrations</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Changelog</Link></li>
+              <li><Link href="/#features" className="hover:text-primary transition-colors">Features</Link></li>
+              <li><Link href="/#pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
+              <li><Link href="/integrations" className="hover:text-primary transition-colors">Integrations</Link></li>
+              <li><Link href="/changelog" className="hover:text-primary transition-colors">Changelog</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Careers</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Blog</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Contact</Link></li>
+              <li><Link href="/about-us" className="hover:text-primary transition-colors">About Us</Link></li>
+              <li><Link href="/careers" className="hover:text-primary transition-colors">Careers</Link></li>
+              <li><Link href="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+              <li><Link href="/cookie-policy" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
             </ul>
           </div>
         </div>
