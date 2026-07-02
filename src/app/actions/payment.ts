@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from '@/lib/supabase/server'
+import { getSiteUrl } from '@/lib/site-url'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
@@ -44,7 +45,7 @@ export async function initiatePayment(invoiceToken: string) {
   const txRef = `TXN-${invoice.invoice_number}-${Date.now()}`
 
   // 4. Call Flutterwave Standard Checkout API
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
   const redirectUrl = `${baseUrl}/api/flw-callback`
 
   const payload = {

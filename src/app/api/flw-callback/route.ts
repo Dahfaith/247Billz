@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { getSiteUrl } from '@/lib/site-url'
 
 const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const transactionId = searchParams.get('transaction_id')
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
 
   if (!transactionId) {
     return NextResponse.redirect(`${baseUrl}/dashboard?message=Payment+Cancelled`)

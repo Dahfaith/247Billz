@@ -106,7 +106,8 @@ export async function verifyAdminOtp(email: string, token: string) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/admin')
+  // Return success and let the client handle navigation to avoid Next's built-in redirect
+  return { success: true }
 }
 
 export async function sendPasswordResetEmail(formData: FormData) {

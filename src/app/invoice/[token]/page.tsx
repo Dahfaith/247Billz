@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { AdvancedQRCode } from "@/components/advanced-qr-code";
 import { initiatePayment } from "@/app/actions/payment";
+import { getSiteUrl } from '@/lib/site-url'
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import PdfDownloadButton from "@/components/pdf-download-button";
@@ -97,12 +98,12 @@ export default async function PublicInvoicePage({
         <div className="flex gap-2">
           <PdfDownloadButton targetId="invoice-document" fileName={`Invoice_${invoice.invoice_number}`} />
           <WhatsAppButton 
-            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/invoice/${token}`} 
+            url={`${getSiteUrl()}/invoice/${token}`} 
             type="invoice" 
             amount={formatCurrency(total, invoice.currency)}
             clientName={invoice.client?.name}
           />
-          <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/invoice/${token}`} />
+          <ShareButton url={`${getSiteUrl()}/invoice/${token}`} />
         </div>
       </div>
 

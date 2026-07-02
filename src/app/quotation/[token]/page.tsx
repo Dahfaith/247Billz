@@ -5,6 +5,7 @@ import PdfDownloadButton from "@/components/pdf-download-button"
 import ShareButton from "@/components/share-button"
 import WhatsAppButton from "@/components/whatsapp-button"
 import { formatCurrency } from "@/lib/currency"
+import { getSiteUrl } from '@/lib/site-url'
 
 export const dynamic = 'force-dynamic'
 import { AutoCloseBanner } from "@/components/auto-close-banner"
@@ -71,12 +72,12 @@ export default async function PublicQuotationPage({ params }: { params: Promise<
         <div className="flex gap-2">
           <PdfDownloadButton targetId="quotation-document" fileName={`Quotation_${quote.quotation_number}`} />
           <WhatsAppButton 
-            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/quotation/${quote.secure_token}`} 
+            url={`${getSiteUrl()}/quotation/${quote.secure_token}`} 
             type="quotation" 
             amount={formatCurrency(total, quote.currency)}
             clientName={quote.client?.name}
           />
-          <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/quotation/${quote.secure_token}`} />
+          <ShareButton url={`${getSiteUrl()}/quotation/${quote.secure_token}`} />
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { formatCurrency } from '@/lib/currency'
+import { getSiteUrl } from '@/lib/site-url'
 
 async function getResendInstance() {
   const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
@@ -43,7 +44,7 @@ export async function sendInvoiceEmail(invoiceId: string) {
   const businessName = invoice.business.name || "A business"
   const invoiceTotal = invoice.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0
   
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
   const invoiceUrl = `${baseUrl}/invoice/${invoice.short_token || invoice.secure_token}`
 
   const htmlContent = `
@@ -112,7 +113,7 @@ export async function sendOverdueReminderEmail(invoice: any) {
   const businessName = invoice.business.name || "A business"
   const invoiceTotal = invoice.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0
   
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
   const invoiceUrl = `${baseUrl}/invoice/${invoice.secure_token}`
 
   const htmlContent = `
@@ -204,7 +205,7 @@ export async function sendQuotationEmail(quotationId: string) {
   const businessName = quote.business.name || "A business"
   const quoteTotal = quote.items?.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0) || 0
   
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
   const quoteUrl = `${baseUrl}/quotation/${quote.short_token || quote.secure_token}`
 
   const htmlContent = `

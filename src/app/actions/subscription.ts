@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import { getPublicPlatformSettings } from '@/app/actions/settings'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'business') {
   const supabase = await createClient()
@@ -55,7 +56,7 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
   const txRef = `SUB-${business.id.substring(0,8)}-${Date.now()}`
 
   // 4. Call Flutterwave Standard Checkout API
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
   const redirectUrl = `${baseUrl}/api/flw-subscription-callback`
   const currency = business.currency || 'NGN'
 

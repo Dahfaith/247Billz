@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { getSiteUrl } from '@/lib/site-url'
 
 import { getPublicPlatformSettings } from "@/app/actions/settings"
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
@@ -7,7 +8,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const transactionId = searchParams.get('transaction_id')
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const baseUrl = getSiteUrl()
 
   const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
   const { data: settings } = await supabaseAdmin.from('platform_settings').select('flutterwave_secret_key').single()

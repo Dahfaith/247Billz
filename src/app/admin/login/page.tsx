@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Shield, ArrowRight, Loader2, KeyRound } from 'lucide-react'
 import { sendAdminOtp, verifyAdminOtp } from '@/app/actions/auth'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
@@ -13,6 +14,7 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,8 +42,14 @@ export default function AdminLoginPage() {
       if (res && res.success === false) {
         toast.error(res.error || "Invalid code.")
         setLoading(false)
+        return
       }
-      // If success, it redirects automatically via the server action
+
+      if (res && res.success === true) {
+        toast.success('Welcome back — redirecting to admin dashboard...')
+        router.push('/admin')
+        return
+      }
     } catch (err: any) {
       toast.error(err.message)
       setLoading(false)
