@@ -164,8 +164,8 @@ export default async function DashboardPage() {
             </Link>
           </Button>
           <Button asChild variant="outline" className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800 rounded-lg shadow-sm">
-            <Link href="/dashboard/receipts/new">
-              <Plus className="w-4 h-4 mr-2" /> Receipt
+            <Link href="/dashboard/receipts">
+              <Receipt className="w-4 h-4 mr-2" /> Receipts
             </Link>
           </Button>
         </div>
