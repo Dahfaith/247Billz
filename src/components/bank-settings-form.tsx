@@ -53,7 +53,7 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
     })
   }
 
-  const validBanks = banks.filter((bank) => /^[0-9]{3}$/.test(String(bank.code)))
+  const validBanks = banks.filter((bank) => /^[0-9]+$/.test(String(bank.code)))
 
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
