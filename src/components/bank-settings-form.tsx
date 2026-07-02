@@ -4,26 +4,42 @@ import { saveBankDetails } from "@/app/actions/settings"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Alert } from "@/components/ui/alert"
 import { toast } from "sonner"
 import { Building2, CheckCircle2 } from "lucide-react"
 
+type Feedback = {
+  message: string
+  variant: "default" | "destructive"
+} | null
+
 export default function BankSettingsForm({ banks, business }: { banks: any[], business: any }) {
   const [isPending, startTransition] = useTransition()
+  const [feedback, setFeedback] = useState<Feedback>(null)
   const hasBankSetup = !!business?.flutterwave_subaccount_id
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    
+    setFeedback(null)
+
     startTransition(async () => {
       try {
         const res = await saveBankDetails(formData)
         if (res?.success) {
-          toast.success(`Bank verified as: ${res.accountName}`)
-          toast.success("Subaccount successfully created! Ready to receive payments.")
+          const message = `Bank verified as: ${res.accountName}. Subaccount successfully created!`
+          setFeedback({ message, variant: "default" })
+          toast.success(message)
+          return
         }
+
+        const errorMessage = res?.error || "Failed to setup bank account"
+        setFeedback({ message: errorMessage, variant: "destructive" })
+        toast.error(errorMessage)
       } catch (error: any) {
-        toast.error(error.message || "Failed to setup bank account")
+        const errorMessage = error?.message || "Failed to setup bank account"
+        setFeedback({ message: errorMessage, variant: "destructive" })
+        toast.error(errorMessage)
       }
     })
   }
@@ -88,6 +104,12 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white" disabled={isPending}>
               {isPending ? "Verifying Account & Setting Up..." : "Verify & Save Bank Details"}
             </Button>
+
+            {feedback ? (
+              <Alert variant={feedback.variant} className="mt-4">
+                {feedback.message}
+              </Alert>
+            ) : null}
           </form>
         )}
       </div>

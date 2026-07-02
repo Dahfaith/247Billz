@@ -37,152 +37,149 @@ export async function fetchBanks() {
 }
 
 export async function saveBankDetails(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error("Unauthorized")
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
 
-  const bankCode = formData.get('bankCode') as string
-  const accountNumber = formData.get('accountNumber') as string
+    const bankCode = formData.get('bankCode') as string
+    const accountNumber = formData.get('accountNumber') as string
 
-  if (!bankCode || !accountNumber) {
-    throw new Error("Bank and Account Number are required")
-  }
-
-  // 1. Fetch Profile and Business
-  let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).limit(1).single()
-  let { data: business } = await supabase.from('businesses').select('*').eq('owner_id', user.id).limit(1).single()
-
-  if (!business) {
-    if (!profile) {
-      const { error: pErr } = await supabase.from('profiles').insert({ id: user.id, role: 'business_owner' })
-      if (pErr) throw new Error(`Profile DB Error: ${pErr.message}`)
-      profile = { id: user.id, role: 'business_owner', created_at: new Date().toISOString() }
+    if (!bankCode || !accountNumber) {
+      return { success: false, error: "Bank and Account Number are required" }
     }
 
-    const { data: newBusiness, error: bErr } = await supabase
-      .from('businesses')
-      .insert({
-        owner_id: user.id,
-        name: user.user_metadata?.business_name || user.user_metadata?.full_name || 'My Business',
-        email: user.email
-      })
-      .select('*')
-      .single()
+    // 1. Fetch Profile and Business
+    let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).limit(1).single()
+    let { data: business } = await supabase.from('businesses').select('*').eq('owner_id', user.id).limit(1).single()
+
+    if (!business) {
+      if (!profile) {
+        const { error: pErr } = await supabase.from('profiles').insert({ id: user.id, role: 'business_owner' })
+        if (pErr) return { success: false, error: `Profile DB Error: ${pErr.message}` }
+        profile = { id: user.id, role: 'business_owner', created_at: new Date().toISOString() }
+      }
+
+      const { data: newBusiness, error: bErr } = await supabase
+        .from('businesses')
+        .insert({
+          owner_id: user.id,
+          name: user.user_metadata?.business_name || user.user_metadata?.full_name || 'My Business',
+          email: user.email
+        })
+        .select('*')
+        .single()
       
-    if (bErr) throw new Error(`Business DB Error: ${bErr.message}`)
-    business = newBusiness
-  }
-
-  // The fallback for name checking (if user_metadata is used)
-  const fullName = user.user_metadata?.full_name || profile?.full_name || ""
-  const businessName = business.name || ""
-
-  const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
-  if (!FLW_SECRET_KEY) {
-    throw new Error("Payment gateway is not configured. Please set your Flutterwave secret key in Admin settings.")
-  }
-
-  // 2. Verify Account Number
-  const verifyRes = await fetch('https://api.flutterwave.com/v3/accounts/resolve', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${FLW_SECRET_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      account_number: accountNumber,
-      account_bank: bankCode
-    })
-  })
-  const verifyData = await verifyRes.json()
-
-  if (verifyData.status !== "success") {
-    throw new Error(verifyData.message || "Invalid account number or bank")
-  }
-
-  const accountName = verifyData.data.account_name.toLowerCase()
-
-  // 3. Name matching logic (fuzzy match first word of either name)
-  const fnToken = fullName.split(' ')[0]?.toLowerCase()
-  const bnToken = businessName.split(' ')[0]?.toLowerCase()
-
-  const isFullNameMatch = fnToken && accountName.includes(fnToken)
-  const isBusinessNameMatch = bnToken && accountName.includes(bnToken)
-  const isTestAccount = process.env.NODE_ENV !== 'production' && accountName.includes("forrest green")
-
-  if (!isFullNameMatch && !isBusinessNameMatch && !isTestAccount) {
-    throw new Error(`Verification failed. The bank account name "${verifyData.data.account_name}" does not match your Profile Name or Business Name.`)
-  }
-
-  // 4. Create or Fetch Flutterwave Subaccount
-  let subaccountId: string | null = null;
-  
-  // Try fetching first to see if it already exists
-  const listRes = await fetch(`https://api.flutterwave.com/v3/subaccounts`, {
-    headers: { Authorization: `Bearer ${FLW_SECRET_KEY}` }
-  });
-  const listData = await listRes.json();
-  
-  if (listData.status === "success" && listData.data?.length > 0) {
-    const existing = listData.data.find((sub: any) => sub.account_bank === bankCode && sub.account_number === accountNumber);
-    if (existing) {
-      subaccountId = existing.subaccount_id;
+      if (bErr) return { success: false, error: `Business DB Error: ${bErr.message}` }
+      business = newBusiness
     }
-  }
 
-  if (!subaccountId) {
-    const subaccountRes = await fetch('https://api.flutterwave.com/v3/subaccounts', {
+    const fullName = user.user_metadata?.full_name || profile?.full_name || ""
+    const businessName = business.name || ""
+
+    const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
+    if (!FLW_SECRET_KEY) {
+      return { success: false, error: "Payment gateway is not configured. Please set your Flutterwave secret key in Admin settings." }
+    }
+
+    const verifyRes = await fetch('https://api.flutterwave.com/v3/accounts/resolve', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${FLW_SECRET_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        account_bank: bankCode,
         account_number: accountNumber,
-        business_name: businessName,
-        business_email: business.email || user.email,
-        business_contact: fullName || "Business Owner",
-        business_contact_mobile: business.phone || "08000000000",
-        business_mobile: business.phone || "08000000000",
-        country: "NG",
-        split_type: "percentage",
-        split_value: 0.98 // 98% to business, 2% platform fee
+        account_bank: bankCode
       })
     })
+    const verifyData = await verifyRes.json()
+
+    if (verifyData.status !== "success") {
+      return { success: false, error: verifyData.message || "Invalid account number or bank" }
+    }
+
+    const accountName = verifyData.data.account_name.toLowerCase()
+
+    const fnToken = fullName.split(' ')[0]?.toLowerCase()
+    const bnToken = businessName.split(' ')[0]?.toLowerCase()
+
+    const isFullNameMatch = fnToken && accountName.includes(fnToken)
+    const isBusinessNameMatch = bnToken && accountName.includes(bnToken)
+    const isTestAccount = process.env.NODE_ENV !== 'production' && accountName.includes("forrest green")
+
+    if (!isFullNameMatch && !isBusinessNameMatch && !isTestAccount) {
+      return { success: false, error: `Verification failed. The bank account name "${verifyData.data.account_name}" does not match your Profile Name or Business Name.` }
+    }
+
+    let subaccountId: string | null = null;
+    const listRes = await fetch(`https://api.flutterwave.com/v3/subaccounts`, {
+      headers: { Authorization: `Bearer ${FLW_SECRET_KEY}` }
+    });
+    const listData = await listRes.json();
     
-    const subaccountData = await subaccountRes.json()
-    
-    if (subaccountData.status !== "success") {
-      // If it still fails with already exists, tell the user to try a different test account number
-      if (subaccountData.message.includes("already exists")) {
-         throw new Error(`This bank account is already registered to another test business. Please use a slightly different account number (e.g., change the last digit).`);
+    if (listData.status === "success" && listData.data?.length > 0) {
+      const existing = listData.data.find((sub: any) => sub.account_bank === bankCode && sub.account_number === accountNumber);
+      if (existing) {
+        subaccountId = existing.subaccount_id;
       }
-      throw new Error(`Failed to create subaccount: ${subaccountData.message}`)
+    }
+
+    if (!subaccountId) {
+      const subaccountRes = await fetch('https://api.flutterwave.com/v3/subaccounts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${FLW_SECRET_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          account_bank: bankCode,
+          account_number: accountNumber,
+          business_name: businessName,
+          business_email: business.email || user.email,
+          business_contact: fullName || "Business Owner",
+          business_contact_mobile: business.phone || "08000000000",
+          business_mobile: business.phone || "08000000000",
+          country: "NG",
+          split_type: "percentage",
+          split_value: 0.98
+        })
+      })
+      
+      const subaccountData = await subaccountRes.json()
+      
+      if (subaccountData.status !== "success") {
+        if (subaccountData.message?.includes("already exists")) {
+          return { success: false, error: `This bank account is already registered to another test business. Please use a slightly different account number (e.g., change the last digit).` }
+        }
+        return { success: false, error: `Failed to create subaccount: ${subaccountData.message}` }
+      }
+      
+      subaccountId = subaccountData.data.subaccount_id;
     }
     
-    subaccountId = subaccountData.data.subaccount_id;
+    const banks = await fetchBanks()
+    const bankObj = banks.find((b: any) => b.code === bankCode)
+    const bankName = bankObj ? bankObj.name : "Unknown Bank"
+
+    const { error: updateError } = await supabase
+      .from('businesses')
+      .update({
+        flutterwave_subaccount_id: subaccountId,
+        bank_name: bankName,
+        account_number: accountNumber
+      })
+      .eq('id', business.id)
+
+    if (updateError) {
+      return { success: false, error: `Database error: ${updateError.message}` }
+    }
+
+    revalidatePath('/dashboard/settings')
+    return { success: true, accountName: verifyData.data.account_name }
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Failed to verify bank details' }
   }
-  
-  // Find bank name from the bank list
-  const banks = await fetchBanks()
-  const bankObj = banks.find((b: any) => b.code === bankCode)
-  const bankName = bankObj ? bankObj.name : "Unknown Bank"
-
-  // 5. Save to Supabase
-  const { error: updateError } = await supabase
-    .from('businesses')
-    .update({
-      flutterwave_subaccount_id: subaccountId,
-      bank_name: bankName,
-      account_number: accountNumber
-    })
-    .eq('id', business.id)
-
-  if (updateError) throw new Error(`Database error: ${updateError.message}`)
-
-  revalidatePath('/dashboard/settings')
-  return { success: true, accountName: verifyData.data.account_name }
 }
 
 export async function updateBusinessProfile(formData: FormData) {
