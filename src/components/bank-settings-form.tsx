@@ -10,7 +10,7 @@ import { Building2, CheckCircle2 } from "lucide-react"
 
 type Feedback = {
   message: string
-  variant: "default" | "destructive"
+  variant: "default" | "destructive" | "success"
 } | null
 
 export default function BankSettingsForm({ banks, business }: { banks: any[], business: any }) {
@@ -28,7 +28,7 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
         const res = await saveBankDetails(formData)
         if (res?.success) {
           const message = `Bank verified as: ${res.accountName}. Subaccount successfully created!`
-          setFeedback({ message, variant: "default" })
+          setFeedback({ message, variant: "success" })
           toast.success(message)
           return
         }
