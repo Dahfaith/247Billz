@@ -96,7 +96,7 @@ export default function BankSettingsForm({ banks, business }: { banks: any[], bu
               >
                 <option value="">Select a Nigerian Bank...</option>
                 {validBanks.map((bank) => (
-                  <option key={bank.code} value={bank.code}>{bank.name} ({bank.code})</option>
+                  <option key={bank.code} value={bank.code}>{bank.name}</option>
                 ))}
               </select>
             </div>
