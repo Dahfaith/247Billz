@@ -26,5 +26,23 @@
 4. Run the development server with `npm run dev`
 5. Open [http://localhost:3000](http://localhost:3000)
 
+## Environment Variables
+
+Create a `.env.local` file with these variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SITE_URL=https://247billz.com`
+- `FLW_SECRET_KEY`
+- `RESEND_API_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CRON_SECRET`
+
+Optional:
+
+- `FLW_PUBLIC_KEY` — can be included if needed, but only `FLW_SECRET_KEY` is required for the payment flow.
+
+> Do not commit `.env.local` to GitHub. It contains secrets that should stay local.
+
 ---
 © 247Billz - Streamlining business payments.
