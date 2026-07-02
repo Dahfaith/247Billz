@@ -55,12 +55,12 @@ export async function initiatePayment(invoiceToken: string) {
     currency: invoice.currency || "NGN",
     redirect_url: redirectUrl,
     customer: {
-      email: invoice.client.email || invoice.business.email,
-      name: invoice.client.name,
-      phonenumber: invoice.client.phone || "08000000000"
+      email: invoice.client?.email || invoice.business?.email || "customer@example.com",
+      name: invoice.client?.name || "Customer",
+      phonenumber: invoice.client?.phone || "08000000000"
     },
     customizations: {
-      title: `${invoice.business.name} - Invoice #${invoice.invoice_number}`,
+      title: `${invoice.business?.name || 'Business'} - Invoice #${invoice.invoice_number}`,
       description: `Payment for Invoice ${invoice.invoice_number}`,
     },
     meta: {
