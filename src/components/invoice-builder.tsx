@@ -32,10 +32,10 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
   const removeItem = (id: number) => setItems(items.filter(i => i.id !== id));
   
   const updateItem = (id: number, field: string, value: string | number) => {
-    setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
+    setItems(items.map((i: any) => i.id === id ? { ...i, [field]: value } : i));
   };
 
-  const subtotal = items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
+  const subtotal = items.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0);
   const tax = subtotal * 0; // Fixed at 0 for now
   const total = subtotal + tax;
 
@@ -143,8 +143,8 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
             </Button>
           </div>
           
-          <div className="space-y-4">
-            {items.map((item, index) => (
+          <div className="space-y-6 max-w-[80vw] overflow-x-auto">
+            {items.map((item: any, index: number) => (
               <div key={item.id} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-muted/30 p-4 rounded-lg border border-border/50">
                 <div className="flex-1 w-full space-y-2">
                   <Label className={index === 0 ? "text-xs sm:block hidden" : "sm:hidden text-xs"}>Description</Label>
@@ -262,7 +262,7 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {items.map((item, i) => (
+                  {items.map((item: any, i: number) => (
                     <tr key={i}>
                       <td className="py-4 text-slate-700">{item.description || "Item description"}</td>
                       <td className="py-4 text-slate-700 text-center">{item.quantity}</td>
