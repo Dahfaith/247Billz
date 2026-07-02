@@ -4,48 +4,39 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
+const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY
 
 export async function initiatePayment(invoiceToken: string) {
+  if (!FLW_SECRET_KEY) {
+    return { error: 'Payment gateway is not configured. Please set FLW_SECRET_KEY.' }
+  }
+
   const supabase = await createClient()
 
   // 1. Fetch Invoice Details
-  // Try short_token first for compatibility with new short links
   let { data: invoice } = await supabase
     .from('invoices')
-    .select(`
-      *,
-      business:businesses(*),
-      client:clients(*)
-    `)
+    .select(`*, business:businesses(*), client:clients(*)`)
     .eq('short_token', invoiceToken)
     .maybeSingle()
 
   if (!invoice) {
-    const res = await supabase
-      .from('invoices')
-      .select(`
-        *,
-        business:businesses(*),
-        client:clients(*)
-      `)
-      .eq('secure_token', invoiceToken)
-      .single()
+    const res = await supabase.from('invoices').select(`*, business:businesses(*), client:clients(*)`).eq('secure_token', invoiceToken).single()
     invoice = res.data
   }
 
-  if (!invoice) throw new Error("Invoice not found")
-  if (invoice.status === 'paid') throw new Error("This invoice has already been paid")
+  if (!invoice) return { error: "Invoice not found" }
+  if (invoice.status === 'paid') return { error: "This invoice has already been paid" }
 
   // Ensure Business has a payout account configured
   const subaccountId = invoice.business?.flutterwave_subaccount_id
   if (!subaccountId) {
-    throw new Error("This business has not configured their payout bank account yet. Payment cannot be processed.")
+    return { error: "This business has not configured their payout bank account yet. Payment cannot be processed." }
   }
 
   // 2. Fetch Items to calculate exact total
   const { data: items } = await supabase.from('invoice_items').select('*').eq('invoice_id', invoice.id)
-  const subtotal = items?.reduce((acc, item) => acc + (item.quantity * item.price), 0) || 0
+  const subtotal = items?.reduce((acc: any, item: any) => acc + (item.quantity * item.price), 0) || 0
   const tax = subtotal * (invoice.tax_rate / 100)
   const total = subtotal + tax
 
@@ -53,7 +44,6 @@ export async function initiatePayment(invoiceToken: string) {
   const txRef = `TXN-${invoice.invoice_number}-${Date.now()}`
 
   // 4. Call Flutterwave Standard Checkout API
-  // Using the absolute URL of our app for the redirect
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const redirectUrl = `${baseUrl}/api/flw-callback`
 
@@ -76,11 +66,7 @@ export async function initiatePayment(invoiceToken: string) {
       secure_token: invoice.secure_token
     },
     subaccounts: [
-      {
-        id: subaccountId
-        // Since we defined the split logic when creating the subaccount, 
-        // Flutterwave automatically handles the 98% split!
-      }
+      { id: subaccountId }
     ]
   }
 
@@ -96,10 +82,11 @@ export async function initiatePayment(invoiceToken: string) {
   const data = await response.json()
 
   if (data.status !== "success" || !data.data?.link) {
-    throw new Error("Failed to initialize payment gateway.")
+    console.error("Flutterwave API Error:", data);
+    return { error: data.message || "Failed to initialize payment gateway." }
   }
 
-  // Redirect the client's browser to the Flutterwave secure checkout page!
+  // Next.js redirect must be called outside try/catch if any
   redirect(data.data.link)
 }
 

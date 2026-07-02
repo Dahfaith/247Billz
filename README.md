@@ -22,7 +22,7 @@
 
 1. Clone the repository
 2. Install dependencies with `npm install`
-3. Copy `.env.example` to `.env.local` and fill in your Supabase and Flutterwave keys
+3. Copy `.env.example` to `.env.local` and fill in your environment variables
 4. Run the development server with `npm run dev`
 5. Open [http://localhost:3000](http://localhost:3000)
 

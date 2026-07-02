@@ -20,43 +20,65 @@ export default async function PublicInvoicePage({
   const token = resolvedParams.token;
   const resolvedSearch = await searchParams;
   const isSuccess = resolvedSearch.payment === 'success';
-  const supabase = await createClient();
 
-  // 1. Fetch Invoice by short_token first, fallback to secure_token
-  let { data: invoice } = await supabase
-    .from('invoices')
-    .select(`
-      *,
-      business:businesses(*),
-      client:clients(*)
-    `)
-    .eq('short_token', token)
-    .maybeSingle();
+  let invoice: any = null;
+  let items: any[] = [];
+  let pageError: string | null = null;
 
-  if (!invoice) {
-    const res = await supabase
+  try {
+    const supabase = await createClient();
+
+    // 1. Fetch Invoice by short_token first, fallback to secure_token
+    const { data: shortInvoice } = await supabase
       .from('invoices')
       .select(`
         *,
         business:businesses(*),
         client:clients(*)
       `)
-      .eq('secure_token', token)
-      .single();
-    invoice = res.data
+      .eq('short_token', token)
+      .maybeSingle();
+
+    invoice = shortInvoice;
+
+    if (!invoice) {
+      const res = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          business:businesses(*),
+          client:clients(*)
+        `)
+        .eq('secure_token', token)
+        .single();
+      invoice = res.data;
+    }
+
+    if (invoice) {
+      const { data: fetchedItems } = await supabase
+        .from('invoice_items')
+        .select('*')
+        .eq('invoice_id', invoice.id);
+      items = fetchedItems || [];
+    }
+  } catch (error) {
+    pageError = error instanceof Error ? error.message : 'An unexpected error occurred while loading this invoice.';
+  }
+
+  if (pageError) {
+    return (
+      <div className="min-h-screen bg-muted/20 py-8 px-4 sm:px-8 flex items-center justify-center">
+        <div className="max-w-xl w-full bg-white rounded-3xl shadow-xl p-8 text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold mb-2">Unable to load invoice</h1>
+          <p className="text-sm text-slate-600 mb-6">{pageError}</p>
+          <p className="text-sm text-slate-500">Please ask the business owner to check their setup or try again later.</p>
+        </div>
+      </div>
+    );
   }
 
   if (!invoice) {
-    notFound();
-  }
-
-  // 2. Fetch Invoice Items
-  const { data: items } = await supabase
-    .from('invoice_items')
-    .select('*')
-    .eq('invoice_id', invoice.id);
-
-  if (!items) {
     notFound();
   }
 
@@ -190,14 +212,26 @@ export default async function PublicInvoicePage({
                   PAID IN FULL
                 </div>
               ) : (
-                <form action={async () => {
-                  "use server";
-                  await initiatePayment(token);
-                }}>
-                  <button type="submit" className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                    Pay {formatCurrency(total, invoice.currency)} Now
-                  </button>
-                </form>
+                <div className="w-full sm:w-auto">
+                  {resolvedSearch?.error && (
+                    <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4 font-medium flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      {resolvedSearch.error}
+                    </div>
+                  )}
+                  <form action={async () => {
+                    "use server";
+                    const res = await initiatePayment(token);
+                    if (res?.error) {
+                      const { redirect } = await import('next/navigation');
+                      redirect(`/invoice/${token}?error=${encodeURIComponent(res.error)}`);
+                    }
+                  }}>
+                    <button type="submit" className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
+                      Pay {formatCurrency(total, invoice.currency)} Now
+                    </button>
+                  </form>
+                </div>
               )}
             </div>
             <div className="w-full sm:w-1/2 space-y-3">
