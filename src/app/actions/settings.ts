@@ -4,10 +4,25 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
-const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY!
+async function getFlutterwaveSecretKey() {
+  if (process.env.FLW_SECRET_KEY) {
+    return process.env.FLW_SECRET_KEY
+  }
+
+  const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const { data, error } = await supabaseAdmin.from('platform_settings').select('flutterwave_secret_key').limit(1).maybeSingle()
+  if (error) {
+    throw new Error(`Unable to load payment gateway settings: ${error.message}`)
+  }
+
+  return data?.flutterwave_secret_key || null
+}
 
 export async function fetchBanks() {
   try {
+    const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
+    if (!FLW_SECRET_KEY) return []
+
     const response = await fetch('https://api.flutterwave.com/v3/banks/NG', {
       headers: {
         Authorization: `Bearer ${FLW_SECRET_KEY}`,
@@ -61,6 +76,11 @@ export async function saveBankDetails(formData: FormData) {
   // The fallback for name checking (if user_metadata is used)
   const fullName = user.user_metadata?.full_name || profile?.full_name || ""
   const businessName = business.name || ""
+
+  const FLW_SECRET_KEY = await getFlutterwaveSecretKey()
+  if (!FLW_SECRET_KEY) {
+    throw new Error("Payment gateway is not configured. Please set your Flutterwave secret key in Admin settings.")
+  }
 
   // 2. Verify Account Number
   const verifyRes = await fetch('https://api.flutterwave.com/v3/accounts/resolve', {
