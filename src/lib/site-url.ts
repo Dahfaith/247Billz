@@ -3,7 +3,7 @@ export function getSiteUrl(): string {
 
   if (process.env.NODE_ENV === 'production') {
     if (!url) {
-      throw new Error('Environment variable NEXT_PUBLIC_SITE_URL must be set in production');
+      return 'https://247billz.com';
     }
     return url.replace(/\/$/, '');
   }

@@ -79,7 +79,7 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
   const flwSecretKey = settings?.flutterwave_secret_key || process.env.FLW_SECRET_KEY
 
   if (!flwSecretKey) {
-    throw new Error("Payment gateway is not properly configured")
+    redirect('/dashboard/billing?error=Payment+gateway+not+configured')
   }
 
   const response = await fetch('https://api.flutterwave.com/v3/payments', {
@@ -94,9 +94,8 @@ export async function initiateSubscriptionUpgrade(tier: 'starter' | 'pro' | 'bus
   const data = await response.json()
 
   if (data.status !== "success" || !data.data?.link) {
-    throw new Error("Failed to initialize payment gateway.")
+    redirect('/dashboard/billing?error=Failed+to+initialize+payment+gateway')
   }
 
-  // Redirect the client's browser to the Flutterwave secure checkout page
   redirect(data.data.link)
 }
