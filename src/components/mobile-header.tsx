@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { PanelLeft, LayoutDashboard, FileText, Receipt, Users, CreditCard, BarChart, Settings, Rocket, Bell, HelpCircle } from "lucide-react";
