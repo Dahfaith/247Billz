@@ -8,7 +8,7 @@ import { SubmitButton } from '@/components/submit-button'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminServicesPage() {
+export default async function AdminServicesPage({ searchParams }: { searchParams?: { success?: string, error?: string } }) {
   const { success, settings } = await getAdminSettings()
   
   // Default fallback if table is empty
@@ -26,6 +26,11 @@ export default async function AdminServicesPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
+      {(searchParams?.success || searchParams?.error) && (
+        <div className={`rounded-2xl border p-4 text-sm ${searchParams?.success ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'}`}>
+          {searchParams?.success ? decodeURIComponent(searchParams.success) : decodeURIComponent(searchParams.error || 'Failed to save settings')}
+        </div>
+      )}
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Services & Features</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">

@@ -88,7 +88,7 @@ export async function saveBankDetails(formData: FormData) {
 
   const isFullNameMatch = fnToken && accountName.includes(fnToken)
   const isBusinessNameMatch = bnToken && accountName.includes(bnToken)
-  const isTestAccount = accountName.includes("forrest green")
+  const isTestAccount = process.env.NODE_ENV !== 'production' && accountName.includes("forrest green")
 
   if (!isFullNameMatch && !isBusinessNameMatch && !isTestAccount) {
     throw new Error(`Verification failed. The bank account name "${verifyData.data.account_name}" does not match your Profile Name or Business Name.`)

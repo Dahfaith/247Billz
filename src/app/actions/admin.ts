@@ -1,5 +1,6 @@
 'use server'
 
+import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@supabase/supabase-js'
 
@@ -359,12 +360,18 @@ export async function updateAdminSettings(formData: FormData) {
       error = res.error
     }
     
-    if (error) throw error
-    
+    if (error) {
+      const redirectTo = rawData.form_type === 'services' ? '/admin/services' : '/admin/api-providers'
+      return redirect(`${redirectTo}?error=${encodeURIComponent(error.message || 'Failed to save settings')}`)
+    }
+
     revalidatePath('/admin', 'layout')
+    const redirectTo = rawData.form_type === 'services' ? '/admin/services' : '/admin/api-providers'
+    return redirect(`${redirectTo}?success=${encodeURIComponent('Settings saved successfully')}`)
   } catch (error: any) {
     console.error("Failed to update settings:", error.message)
-    throw new Error(error.message)
+    const redirectTo = formData.get('form_type') === 'services' ? '/admin/services' : '/admin/api-providers'
+    return redirect(`${redirectTo}?error=${encodeURIComponent(error?.message || 'Failed to save settings')}`)
   }
 }
 
