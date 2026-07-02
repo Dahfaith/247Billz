@@ -105,15 +105,19 @@ export async function saveBankDetails(formData: FormData) {
     })
     const verifyData = await verifyRes.json()
 
-    const providerMessage = [
-      verifyData.message,
-      verifyData.error,
-      verifyData.data?.message,
-      verifyData.data?.error,
-      verifyData.response?.message
-    ]
-      .filter(Boolean)
-      .join(' ') || "Invalid account number or bank"
+    const collectStrings = (value: any, result: string[] = []) => {
+      if (!value) return result
+      if (typeof value === 'string') {
+        result.push(value)
+      } else if (Array.isArray(value)) {
+        value.forEach((item) => collectStrings(item, result))
+      } else if (typeof value === 'object') {
+        Object.values(value).forEach((item) => collectStrings(item, result))
+      }
+      return result
+    }
+
+    const providerMessage = collectStrings(verifyData).join(' ').trim() || "Invalid account number or bank"
 
     if (verifyData.status !== "success") {
       if (/destbankcode\/account_bank must be numeric/i.test(providerMessage)) {
