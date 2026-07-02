@@ -1,0 +1,226 @@
+'use client'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Building2, Users, CreditCard, Activity, ArrowUpRight, TrendingDown } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils'
+import { motion } from 'framer-motion'
+
+export function AdminDashboardClient({ 
+  stats, 
+  recentRegistrations, 
+  recentTransactions 
+}: {
+  stats: any,
+  recentRegistrations: any[],
+  recentTransactions: any[]
+}) {
+  const containerVariants: any = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants: any = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
+    }
+  }
+
+  return (
+    <div className="space-y-10 relative">
+      {/* Dynamic Background Orb */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#F97316]/10 dark:bg-[#F97316]/5 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '4s' }} />
+
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Platform Overview</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">
+          Welcome back. Here is what is happening across 247Billz today.
+        </p>
+      </motion.div>
+
+      {/* Top Metrics Cards */}
+      <motion.div 
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants} className="group">
+          <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+              <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Volume (30d)</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30 transform group-hover:scale-110 transition-transform duration-300">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">
+                {formatCurrency(stats?.monthlyRevenue || 0, 'NGN')}
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100/80 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-xs font-semibold">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span>+12.5% vs last month</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="group">
+          <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+              <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Businesses</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 transform group-hover:scale-110 transition-transform duration-300">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">
+                {stats?.totalBusinesses}
+              </div>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Total tenants registered
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="group">
+          <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+              <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Subscriptions</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 transform group-hover:scale-110 transition-transform duration-300">
+                <CreditCard className="w-5 h-5 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">
+                {stats?.activeSubscriptions}
+              </div>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Active recurring plans
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="group">
+          <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+              <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Failed Txns</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/30 transform group-hover:scale-110 transition-transform duration-300">
+                <TrendingDown className="w-5 h-5 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">
+                {stats?.failedTransactionsCount}
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100/80 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold">
+                <span>Requires attention</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+      {/* Tables Section */}
+      <motion.div 
+        className="grid gap-8 lg:grid-cols-2"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Recent Registrations */}
+        <motion.div variants={itemVariants}>
+          <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg rounded-2xl overflow-hidden h-full flex flex-col">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800/60 bg-white/30 dark:bg-[#0F172A]/30">
+              <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Recent Signups</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 flex-1">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                {recentRegistrations?.map((business: any) => (
+                  <div key={business.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center font-bold text-indigo-700 dark:text-indigo-300 shadow-sm shadow-indigo-100 dark:shadow-none">
+                        {business.name.substring(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-slate-900 dark:text-white">{business.name}</p>
+                        <p className="text-sm text-slate-500">{business.email || 'No email'}</p>
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 shadow-sm border border-slate-200/50 dark:border-slate-700 uppercase tracking-wider">
+                      {business.subscription_tier}
+                    </div>
+                  </div>
+                ))}
+                {(!recentRegistrations || recentRegistrations.length === 0) && (
+                  <div className="p-8 text-center text-slate-500">No recent signups</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Recent Transactions */}
+        <motion.div variants={itemVariants}>
+          <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg rounded-2xl overflow-hidden h-full flex flex-col">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800/60 bg-white/30 dark:bg-[#0F172A]/30">
+              <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Platform Payments</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 flex-1">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                {recentTransactions?.map((tx: any) => (
+                  <div key={tx.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm
+                        ${tx.status === 'successful' || tx.status === 'paid' ? 'bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/50 dark:to-teal-900/50 text-emerald-700 dark:text-emerald-400 shadow-emerald-100 dark:shadow-none' : 
+                          tx.status === 'failed' ? 'bg-gradient-to-br from-rose-100 to-red-100 dark:from-rose-900/50 dark:to-red-900/50 text-rose-700 dark:text-rose-400 shadow-rose-100 dark:shadow-none' : 
+                          'bg-gradient-to-br from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50 text-amber-700 dark:text-amber-400 shadow-amber-100 dark:shadow-none'}
+                      `}>
+                        <CreditCard className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-base font-bold text-slate-900 dark:text-white">
+                          {formatCurrency(tx.amount, 'NGN')}
+                        </p>
+                        <p className="text-sm text-slate-500 font-medium">
+                          Inv #{tx.invoices?.invoice_number || 'N/A'} • {tx.payment_method || 'Link'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border uppercase tracking-wider
+                      ${tx.status === 'successful' || tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50 dark:bg-emerald-900/20 dark:border-emerald-800/50' : 
+                        tx.status === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200/50 dark:bg-rose-900/20 dark:border-rose-800/50' : 
+                        'bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-900/20 dark:border-amber-800/50'}
+                    `}>
+                      {tx.status}
+                    </div>
+                  </div>
+                ))}
+                {(!recentTransactions || recentTransactions.length === 0) && (
+                  <div className="p-8 text-center text-slate-500">No recent payments</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+    </div>
+  )
+}
