@@ -31,7 +31,7 @@ export function DashboardRevenueChart({ data, currencySymbol = "₦" }: { data: 
             padding: '12px'
           }}
           itemStyle={{ color: '#F97316', fontWeight: 600 }}
-          formatter={(value: number) => [`${currencySymbol}${value.toLocaleString()}`, 'Revenue']}
+          formatter={(value: any) => [`${currencySymbol}${Number(value).toLocaleString()}`, 'Revenue']}
           labelStyle={{ color: '#64748B', marginBottom: '4px', fontWeight: 500 }}
           cursor={{ stroke: '#F97316', strokeWidth: 1, strokeDasharray: '3 3' }}
         />
