@@ -291,7 +291,7 @@ export default async function DashboardPage() {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-white/50 dark:border-slate-800 ${activity.color}`}>
                       {activity.initials}
                     </div>
-                    <div className="ml-4 space-y-0.5 overflow-hidden">
+                    <div className="ml-4 space-y-0.5 flex-1 min-w-0">
                       <p className="text-sm font-medium leading-none truncate text-slate-900 dark:text-slate-100">{activity.type}</p>
                       <p className="text-xs text-slate-500 truncate">
                         {activity.description}

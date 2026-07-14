@@ -71,8 +71,8 @@ export function DashboardStatusChart({ data }: { data: { name: string, value: nu
           data={data}
           cx="50%"
           cy="50%"
-          innerRadius={80}
-          outerRadius={110}
+          innerRadius="60%"
+          outerRadius="80%"
           paddingAngle={5}
           dataKey="value"
           stroke="none"
