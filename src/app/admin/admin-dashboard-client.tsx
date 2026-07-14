@@ -46,7 +46,7 @@ export function AdminDashboardClient({
   return (
     <div className="space-y-10 relative">
       {/* Dynamic Background Orb */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#F97316]/10 dark:bg-[#F97316]/5 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className="absolute top-0 left-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-[#F97316]/10 dark:bg-[#F97316]/5 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '4s' }} />
 
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
