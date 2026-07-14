@@ -57,7 +57,7 @@ export async function initiatePayment(invoiceToken: string) {
 
   const payload = {
     tx_ref: txRef,
-    amount: total.toString(),
+    amount: (Math.round(total * 100) / 100).toString(),
     currency: invoice.currency || "NGN",
     redirect_url: redirectUrl,
     customer: {
@@ -75,7 +75,8 @@ export async function initiatePayment(invoiceToken: string) {
     },
     subaccounts: [
       { 
-        id: subaccountId
+        id: subaccountId,
+        transaction_split_ratio: "1"
       }
     ]
   }
