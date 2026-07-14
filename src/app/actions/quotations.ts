@@ -269,6 +269,8 @@ export async function updateQuotationAction(quotationId: string, formData: FormD
   const issue_date = formData.get('issue_date') as string
   const valid_until = formData.get('valid_until') as string
   const notes = formData.get('notes') as string
+  const tax_rate = parseFloat(formData.get('tax_rate') as string) || 0
+  const discount_rate = parseFloat(formData.get('discount_rate') as string) || 0
 
   // Update Quotation
   const { error: updateError } = await supabase
@@ -278,6 +280,8 @@ export async function updateQuotationAction(quotationId: string, formData: FormD
       issue_date,
       valid_until,
       notes,
+      tax_rate,
+      discount_rate
     })
     .eq('id', quotationId)
 

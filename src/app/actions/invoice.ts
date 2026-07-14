@@ -10,7 +10,7 @@ export async function createInvoice(formData: FormData) {
   // 1. Authenticate user
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    throw new Error('Not authenticated')
+    return { error: 'Not authenticated' }
   }
 
   // 2. Fetch business ID
@@ -49,7 +49,7 @@ export async function createInvoice(formData: FormData) {
       .single()
       
     if (createError) {
-      throw new Error(`Failed to auto-create business: ${createError.message}`)
+      return { error: `Failed to auto-create business: ${createError.message}` }
     }
     businessId = newBusiness.id
   }
@@ -97,7 +97,7 @@ export async function createInvoice(formData: FormData) {
         .select()
         .single()
       
-      if (clientError) throw new Error(`Failed to create client: ${clientError.message}`)
+      if (clientError) return { error: `Failed to create client: ${clientError.message}` }
       clientId = newClient.id
     }
   } else {
@@ -111,7 +111,7 @@ export async function createInvoice(formData: FormData) {
       .select()
       .single()
     
-    if (clientError) throw new Error(`Failed to create client: ${clientError.message}`)
+    if (clientError) return { error: `Failed to create client: ${clientError.message}` }
     clientId = newClient.id
   }
 
@@ -126,8 +126,8 @@ export async function createInvoice(formData: FormData) {
       .eq('business_id', businessId)
       .single()
     
-    if (!existing) throw new Error("Invoice not found or unauthorized")
-    if (existing.status === 'paid') throw new Error("Cannot edit a paid invoice")
+    if (!existing) return { error: "Invoice not found or unauthorized" }
+    if (existing.status === 'paid') return { error: "Cannot edit a paid invoice" }
     
     // Update invoice
     const { data: updatedInvoice, error: updateError } = await supabase
@@ -136,13 +136,15 @@ export async function createInvoice(formData: FormData) {
         client_id: clientId,
         issue_date: issueDate,
         due_date: dueDate,
-        currency: currency
+        currency: currency,
+        tax_rate: taxRate,
+        discount_rate: discountRate
       })
       .eq('id', invoiceId)
       .select()
       .single()
 
-    if (updateError) throw new Error(`Failed to update invoice: ${updateError.message}`)
+    if (updateError) return { error: `Failed to update invoice: ${updateError.message}` }
     currentInvoice = updatedInvoice
 
     // Delete old items so we can insert new ones
@@ -165,13 +167,15 @@ export async function createInvoice(formData: FormData) {
         issue_date: issueDate,
         due_date: dueDate,
         currency: currency,
+        tax_rate: taxRate,
+        discount_rate: discountRate,
         status: 'pending', // Default status
         short_token
       })
       .select()
       .single()
 
-    if (invoiceError) throw new Error(`Failed to create invoice: ${invoiceError.message}`)
+    if (invoiceError) return { error: `Failed to create invoice: ${invoiceError.message}` }
     currentInvoice = newInvoice
   }
 
@@ -187,8 +191,8 @@ export async function createInvoice(formData: FormData) {
     .from('invoice_items')
     .insert(invoiceItemsToInsert)
 
-  if (itemsError) throw new Error(`Failed to save invoice items: ${itemsError.message}`)
+  if (itemsError) return { error: `Failed to save invoice items: ${itemsError.message}` }
 
-  // 8. Redirect to the public invoice view using the short token if available (fallback to secure_token)
-  redirect(`/invoice/${currentInvoice.short_token || currentInvoice.secure_token}`)
+  // 8. Return the redirect URL for the client to handle
+  return { success: true, redirectUrl: `/invoice/${currentInvoice.short_token || currentInvoice.secure_token}` }
 }

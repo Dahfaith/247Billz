@@ -75,9 +75,7 @@ export async function initiatePayment(invoiceToken: string) {
     },
     subaccounts: [
       { 
-        id: subaccountId,
-        transaction_charge_type: "percentage",
-        transaction_charge: 0
+        id: subaccountId
       }
     ]
   }
@@ -98,8 +96,8 @@ export async function initiatePayment(invoiceToken: string) {
     return { error: data.message || "Failed to initialize payment gateway." }
   }
 
-  // Next.js redirect must be called outside try/catch if any
-  redirect(data.data.link)
+  // Return the link instead of doing redirect() so the client can navigate to the external URL safely
+  return { redirectUrl: data.data.link }
 }
 
 export async function confirmCashPayment(formData: FormData) {

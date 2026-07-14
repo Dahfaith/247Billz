@@ -74,8 +74,11 @@ export default function InvoiceBuilder({ business, platformSettings, clients = [
           } else {
             toast.error(result.error);
           }
+        } else if (result?.redirectUrl) {
+          router.push(result.redirectUrl);
         }
       } catch (error: any) {
+        console.error(error);
         toast.error("An unexpected error occurred.");
       }
     });

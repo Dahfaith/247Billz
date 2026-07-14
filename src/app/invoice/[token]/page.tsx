@@ -9,6 +9,7 @@ import PdfDownloadButton from "@/components/pdf-download-button";
 import ShareButton from "@/components/share-button";
 import WhatsAppButton from "@/components/whatsapp-button";
 import { formatCurrency } from "@/lib/currency";
+import { CheckoutButton } from "@/components/checkout-button";
 
 export default async function PublicInvoicePage({ 
   params,
@@ -225,18 +226,7 @@ export default async function PublicInvoicePage({
                       {resolvedSearch.error}
                     </div>
                   )}
-                  <form action={async () => {
-                    "use server";
-                    const res = await initiatePayment(token);
-                    if (res?.error) {
-                      const { redirect } = await import('next/navigation');
-                      redirect(`/invoice/${token}?error=${encodeURIComponent(res.error)}`);
-                    }
-                  }}>
-                    <button type="submit" className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-                      Pay {formatCurrency(total, invoice.currency)} Now
-                    </button>
-                  </form>
+                  <CheckoutButton token={token} total={total} currency={invoice.currency || "NGN"} />
                 </div>
               )}
             </div>
