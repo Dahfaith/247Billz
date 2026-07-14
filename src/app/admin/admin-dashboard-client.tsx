@@ -66,7 +66,7 @@ export function AdminDashboardClient({
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} className="group">
+        <motion.div variants={itemVariants} className="group min-w-0">
           <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -87,7 +87,7 @@ export function AdminDashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="group">
+        <motion.div variants={itemVariants} className="group min-w-0">
           <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -107,7 +107,7 @@ export function AdminDashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="group">
+        <motion.div variants={itemVariants} className="group min-w-0">
           <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -127,7 +127,7 @@ export function AdminDashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="group">
+        <motion.div variants={itemVariants} className="group min-w-0">
           <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
@@ -149,7 +149,7 @@ export function AdminDashboardClient({
       </motion.div>
 
       {/* Revenue Chart Section */}
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="min-w-0">
         <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg rounded-2xl overflow-hidden relative">
           <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800/60 bg-white/30 dark:bg-[#0F172A]/30">
             <div>
@@ -179,8 +179,8 @@ export function AdminDashboardClient({
           </CardHeader>
           <CardContent className="pt-6 pb-2 pr-6 pl-2">
             <div className="h-[350px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={displayChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <ResponsiveContainer width="99%" height="100%">
+                <AreaChart data={displayChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#F97316" stopOpacity={0.3}/>
@@ -191,17 +191,18 @@ export function AdminDashboardClient({
                   <XAxis 
                     dataKey="name" 
                     stroke="#94A3B8" 
-                    fontSize={12} 
+                    fontSize={11} 
                     tickLine={false} 
                     axisLine={false} 
                     dy={10}
+                    padding={{ left: 15, right: 15 }}
                   />
                   <YAxis 
                     stroke="#94A3B8" 
                     fontSize={12} 
                     tickLine={false} 
                     axisLine={false} 
-                    width={80}
+                    width={50}
                     tickFormatter={(value) => {
                       if (value >= 1000000) return `₦${(value / 1000000).toFixed(1)}M`;
                       if (value >= 1000) return `₦${(value / 1000).toFixed(0)}k`;
@@ -247,7 +248,7 @@ export function AdminDashboardClient({
         animate="visible"
       >
         {/* Recent Registrations */}
-        <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants} className="min-w-0">
           <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg rounded-2xl overflow-hidden h-full flex flex-col">
             <CardHeader className="border-b border-slate-100 dark:border-slate-800/60 bg-white/30 dark:bg-[#0F172A]/30">
               <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Recent Signups</CardTitle>
@@ -279,7 +280,7 @@ export function AdminDashboardClient({
         </motion.div>
 
         {/* Recent Transactions */}
-        <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants} className="min-w-0">
           <Card className="bg-white/70 dark:bg-[#0F172A]/60 backdrop-blur-md border-white/40 dark:border-slate-800/60 shadow-lg rounded-2xl overflow-hidden h-full flex flex-col">
             <CardHeader className="border-b border-slate-100 dark:border-slate-800/60 bg-white/30 dark:bg-[#0F172A]/30">
               <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">Platform Payments</CardTitle>
