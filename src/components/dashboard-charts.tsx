@@ -4,16 +4,17 @@ import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianG
 
 export function DashboardRevenueChart({ data, currencySymbol = "₦" }: { data: { name: string, total: number }[], currencySymbol?: string }) {
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+    <ResponsiveContainer width="99%" height={350}>
+      <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
         <XAxis 
           dataKey="name" 
           stroke="#94A3B8" 
-          fontSize={12} 
+          fontSize={11} 
           tickLine={false} 
           axisLine={false} 
           dy={10}
+          padding={{ left: 15, right: 15 }}
         />
         <YAxis 
           stroke="#94A3B8" 

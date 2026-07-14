@@ -194,7 +194,7 @@ export default async function DashboardPage() {
       {/* Hero Metrics Row */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Total Revenue Hero Card */}
-        <Card className="col-span-1 border-0 shadow-lg bg-gradient-to-br from-[#F97316] to-[#EA580C] text-white relative overflow-hidden rounded-2xl">
+        <Card className="col-span-1 border-0 shadow-lg bg-gradient-to-br from-[#F97316] to-[#EA580C] text-white relative overflow-hidden rounded-2xl min-w-0">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-orange-100 uppercase tracking-wider">Total Earned</CardTitle>
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Outstanding Balances */}
-        <Card className="col-span-1 border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl bg-white dark:bg-[#0F172A]">
+        <Card className="col-span-1 border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl bg-white dark:bg-[#0F172A] min-w-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Outstanding Balance</CardTitle>
           </CardHeader>
@@ -225,7 +225,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Quotations Overview */}
-        <Card className="col-span-1 border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl bg-white dark:bg-[#0F172A] flex flex-col justify-center">
+        <Card className="col-span-1 border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl bg-white dark:bg-[#0F172A] flex flex-col justify-center min-w-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Quotations Overview</CardTitle>
           </CardHeader>
@@ -258,7 +258,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-1 md:col-span-2 lg:col-span-4 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl overflow-hidden">
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl overflow-hidden min-w-0">
           <CardHeader>
             <CardTitle>Revenue Overview</CardTitle>
             <CardDescription>Your paid invoices over the last 6 months.</CardDescription>
@@ -268,7 +268,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
         
-        <Card className="col-span-1 md:col-span-2 lg:col-span-3 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl flex flex-col">
+        <Card className="col-span-1 md:col-span-2 lg:col-span-3 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl flex flex-col min-w-0">
           <div className="flex items-center justify-between px-6 pt-6 pb-2">
             <div>
               <CardTitle>Recent Activity</CardTitle>
@@ -309,7 +309,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mt-6">
-        <Card className="col-span-1 md:col-span-2 lg:col-span-3 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl overflow-hidden">
+        <Card className="col-span-1 md:col-span-2 lg:col-span-3 shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl overflow-hidden min-w-0">
           <CardHeader>
             <CardTitle>Invoice Status</CardTitle>
             <CardDescription>Breakdown of all your generated invoices.</CardDescription>
