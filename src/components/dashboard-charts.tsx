@@ -20,13 +20,13 @@ export function DashboardRevenueChart({ data, currencySymbol = "₦" }: { data: 
           fontSize={12} 
           tickLine={false} 
           axisLine={false} 
-          width={80}
+          width={50}
           tickFormatter={(value) => {
             if (value >= 1000000) return `${currencySymbol}${(value / 1000000).toFixed(1)}M`;
             if (value >= 1000) return `${currencySymbol}${(value / 1000).toFixed(0)}k`;
             return `${currencySymbol}${value}`;
           }} 
-          dx={-10}
+          dx={-5}
         />
         <Tooltip 
           contentStyle={{ 

@@ -145,7 +145,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="p-4 sm:p-8 space-y-8 max-w-full bg-[#F8FAFC] dark:bg-[#020617] min-h-[calc(100vh-4rem)]">
+    <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 max-w-full bg-[#F8FAFC] dark:bg-[#020617] min-h-[calc(100vh-4rem)]">
       {/* Header & Quick Actions */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
