@@ -257,16 +257,16 @@ export function AdminDashboardClient({
               <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {recentRegistrations?.map((business: any) => (
                   <div key={business.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center font-bold text-indigo-700 dark:text-indigo-300 shadow-sm shadow-indigo-100 dark:shadow-none">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-12 h-12 rounded-2xl flex-shrink-0 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center font-bold text-indigo-700 dark:text-indigo-300 shadow-sm shadow-indigo-100 dark:shadow-none">
                         {business.name.substring(0, 2).toUpperCase()}
                       </div>
-                      <div>
-                        <p className="text-base font-semibold text-slate-900 dark:text-white">{business.name}</p>
-                        <p className="text-sm text-slate-500">{business.email || 'No email'}</p>
+                      <div className="min-w-0">
+                        <p className="text-base font-semibold text-slate-900 dark:text-white truncate">{business.name}</p>
+                        <p className="text-sm text-slate-500 truncate">{business.email || 'No email'}</p>
                       </div>
                     </div>
-                    <div className="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 shadow-sm border border-slate-200/50 dark:border-slate-700 uppercase tracking-wider">
+                    <div className="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 shadow-sm border border-slate-200/50 dark:border-slate-700 uppercase tracking-wider flex-shrink-0 ml-2">
                       {business.subscription_tier}
                     </div>
                   </div>
@@ -289,24 +289,24 @@ export function AdminDashboardClient({
               <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {recentTransactions?.map((tx: any) => (
                   <div key={tx.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm
                         ${tx.status === 'successful' || tx.status === 'paid' ? 'bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/50 dark:to-teal-900/50 text-emerald-700 dark:text-emerald-400 shadow-emerald-100 dark:shadow-none' : 
                           tx.status === 'failed' ? 'bg-gradient-to-br from-rose-100 to-red-100 dark:from-rose-900/50 dark:to-red-900/50 text-rose-700 dark:text-rose-400 shadow-rose-100 dark:shadow-none' : 
                           'bg-gradient-to-br from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50 text-amber-700 dark:text-amber-400 shadow-amber-100 dark:shadow-none'}
                       `}>
                         <CreditCard className="w-5 h-5" />
                       </div>
-                      <div>
-                        <p className="text-base font-bold text-slate-900 dark:text-white">
+                      <div className="min-w-0">
+                        <p className="text-base font-bold text-slate-900 dark:text-white truncate">
                           {formatCurrency(tx.amount, 'NGN')}
                         </p>
-                        <p className="text-sm text-slate-500 font-medium">
+                        <p className="text-sm text-slate-500 font-medium truncate">
                           Inv #{tx.invoices?.invoice_number || 'N/A'} • {tx.payment_method || 'Link'}
                         </p>
                       </div>
                     </div>
-                    <div className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border uppercase tracking-wider
+                    <div className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border uppercase tracking-wider flex-shrink-0 ml-2
                       ${tx.status === 'successful' || tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50 dark:bg-emerald-900/20 dark:border-emerald-800/50' : 
                         tx.status === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200/50 dark:bg-rose-900/20 dark:border-rose-800/50' : 
                         'bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-900/20 dark:border-amber-800/50'}
